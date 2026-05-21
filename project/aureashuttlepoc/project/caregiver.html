@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Caregiver &amp; auto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    .data-block {
+      background:#fff;
+      border:1px solid var(--border-soft);
+      border-radius: var(--r-md);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .data-block .head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+    .data-block .head h3 { font-size: 14px; font-weight: 700; }
+    .data-block .data-row { display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed var(--border-soft); font-size: 14px; gap: 10px; }
+    .data-block .data-row:last-child { border-bottom: none; }
+    .data-block .k { color: var(--medium-gray); }
+    .data-block .v { font-weight: 700; text-align: right; max-width: 65%; }
+    .esg-mini {
+      background: linear-gradient(135deg, #FBFDF8, var(--shuttle-teal-light));
+      border:1px solid #99E9DD;
+      border-radius: var(--r-md);
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="patient-app">
+    <header class="patient-sub-header">
+      <a href="home.html" class="back-btn"><span id="ico-back"></span></a>
+      <div class="page-title">Caregiver &amp; auto</div>
+      <div style="width:36px"></div>
+    </header>
+
+    <div class="patient-content">
+      <p class="caption mb-16">Questi dati ci servono per calcolare l'impatto sociale e ambientale del servizio. Sono protetti e non vengono mai condivisi con le compagnie taxi.</p>
+
+      <!-- Anagrafica caregiver -->
+      <div class="data-block">
+        <div class="head">
+          <h3>Anagrafica caregiver</h3>
+          <button class="btn btn--ghost btn--sm" onclick="editCaregiver()" style="color: var(--shuttle-teal-dark)"><span id="ico-edit1"></span>Modifica</button>
+        </div>
+        <div class="data-row"><span class="k">Nome</span><span class="v" id="cg-name">—</span></div>
+        <div class="data-row"><span class="k">Relazione</span><span class="v" id="cg-rel">—</span></div>
+        <div class="data-row"><span class="k">Professione</span><span class="v" id="cg-job">—</span></div>
+        <div class="data-row"><span class="k">Costo giornata lavorativa</span><span class="v" id="cg-cost">—</span></div>
+        <div class="data-row"><span class="k">Contatto</span><span class="v" id="cg-phone">—</span></div>
+      </div>
+
+      <!-- Auto caregiver -->
+      <div class="data-block">
+        <div class="head">
+          <h3>Auto del caregiver</h3>
+          <button class="btn btn--ghost btn--sm" onclick="editCar()" style="color: var(--shuttle-teal-dark)"><span id="ico-edit2"></span>Modifica</button>
+        </div>
+        <div class="data-row"><span class="k">Modello</span><span class="v" id="car-model">—</span></div>
+        <div class="data-row"><span class="k">Targa</span><span class="v font-mono" id="car-plate">—</span></div>
+        <div class="data-row"><span class="k">Anno</span><span class="v" id="car-year">—</span></div>
+        <div class="data-row">
+          <span class="k">Alimentazione</span>
+          <span class="v"><span class="fuel-badge" id="car-fuel">—</span></span>
+        </div>
+        <div class="data-row" style="border-top: 1px dashed var(--border-soft); border-bottom: none; padding-top: 10px; margin-top: 4px">
+          <span class="k">Emissioni stimate</span>
+          <span class="v" id="car-co2">0.142 kg CO₂/km</span>
+        </div>
+      </div>
+
+      <!-- ESG calcolo dinamico -->
+      <div class="divider-eyebrow"><span>Il tuo impatto ESG personale</span><span class="line"></span></div>
+      <div class="esg-mini">
+        <p style="font-size: 14px; line-height: 1.55; color: var(--shuttle-teal-dark)">
+          Il tuo caregiver ha risparmiato circa <strong><span id="days-saved">8</span> giornate lavorative</strong>
+          e tu hai evitato circa <strong><span id="co2-saved">142</span> kg di CO₂</strong> grazie ad AureaShuttle.
+        </p>
+        <div class="flex gap-8 mt-12">
+          <div style="flex:1; padding:12px; background:#fff; border-radius:10px; text-align:center">
+            <p style="font-size: 22px; font-weight: 700; color: var(--shuttle-teal-dark)" id="cg-days">8</p>
+            <p class="caption" style="font-size: 10px">giorni risparmiati</p>
+          </div>
+          <div style="flex:1; padding:12px; background:#fff; border-radius:10px; text-align:center">
+            <p style="font-size: 22px; font-weight: 700; color: var(--shuttle-teal-dark)">€<span id="cg-eur">1.440</span></p>
+            <p class="caption" style="font-size: 10px">valore tempo</p>
+          </div>
+          <div style="flex:1; padding:12px; background:#fff; border-radius:10px; text-align:center">
+            <p style="font-size: 22px; font-weight: 700; color: var(--shuttle-teal-dark)"><span id="km-saved">1.000</span></p>
+            <p class="caption" style="font-size: 10px">km privati evitati</p>
+          </div>
+        </div>
+        <p class="caption mt-12" style="font-size: 11px; line-height: 1.45">
+          Calcolo: <span class="font-mono">corse_AR × 90km ×  emissioni_kgCO2/km</span>. Le giornate caregiver risparmiate moltiplicate per il costo giornata stimano il valore economico del tempo recuperato.
+        </p>
+        <a href="profile.html" class="btn btn--secondary btn--block btn--sm mt-12">Vedi dashboard ESG completa →</a>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a class="nav-item" href="home.html"><span id="nv-home"></span>Home</a>
+      <a class="nav-item" href="my-rides.html"><span id="nv-rides"></span>Corse</a>
+      <a class="nav-item" href="wallet.html"><span id="nv-wallet"></span>Wallet</a>
+      <a class="nav-item active" href="profile.html"><span id="nv-profile"></span>Profilo</a>
+    </nav>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-back').outerHTML = aIcon('arrow-left', { size: 18 });
+    document.getElementById('ico-edit1').outerHTML = aIcon('edit', { size: 14 });
+    document.getElementById('ico-edit2').outerHTML = aIcon('edit', { size: 14 });
+    document.getElementById('nv-home').outerHTML   = aIcon('home',   { size: 22 });
+    document.getElementById('nv-rides').outerHTML  = aIcon('truck',  { size: 22 });
+    document.getElementById('nv-wallet').outerHTML = aIcon('wallet', { size: 22 });
+    document.getElementById('nv-profile').outerHTML= aIcon('user',   { size: 22 });
+
+    const cg = MOCK.caregiver;
+    const car = MOCK.caregiverCar;
+    const esg = MOCK.esgPersonal;
+
+    document.getElementById('cg-name').textContent  = cg.first_name + ' ' + cg.last_name;
+    document.getElementById('cg-rel').textContent   = cg.relation;
+    document.getElementById('cg-job').textContent   = cg.profession;
+    document.getElementById('cg-cost').textContent  = '€' + cg.daily_cost + ' / giorno';
+    document.getElementById('cg-phone').textContent = cg.phone;
+
+    document.getElementById('car-model').textContent = car.model;
+    document.getElementById('car-plate').textContent = car.plate;
+    document.getElementById('car-year').textContent  = car.year;
+    const fuelEl = document.getElementById('car-fuel');
+    fuelEl.classList.add(car.fuel);
+    fuelEl.innerHTML = (car.fuel === 'elettrica' ? aIcon('zap', { size: 12 }) :
+                       car.fuel === 'ibrida'    ? aIcon('leaf', { size: 12 }) :
+                       aIcon('gas', { size: 12 })) +
+                       car.fuel.charAt(0).toUpperCase() + car.fuel.slice(1);
+    document.getElementById('car-co2').textContent = car.co2_per_km + ' kg CO₂/km';
+
+    document.getElementById('days-saved').textContent = esg.caregiver_days_saved;
+    document.getElementById('co2-saved').textContent  = esg.co2_kg_avoided;
+    document.getElementById('cg-days').textContent    = esg.caregiver_days_saved;
+    document.getElementById('cg-eur').textContent     = esg.caregiver_eur_saved.toLocaleString('it-IT');
+    document.getElementById('km-saved').textContent   = esg.private_km_avoided.toLocaleString('it-IT');
+
+    // ---------- Modali di modifica ----------
+    function editCaregiver() {
+      openInfoModal({
+        title: 'Modifica anagrafica caregiver',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field" style="margin-bottom:0"><label class="field-label">Nome</label><div class="input-container"><input class="input" id="ecg-fn" value="${cg.first_name}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Cognome</label><div class="input-container"><input class="input" id="ecg-ln" value="${cg.last_name}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Relazione</label><div class="input-container">
+              <select class="input" id="ecg-rel">
+                ${['Figlio','Figlia','Coniuge','Genitore','Fratello/Sorella','Nipote','Altro familiare','Assistente professionale'].map(r => `<option ${r === cg.relation ? 'selected' : ''}>${r}</option>`).join('')}
+              </select></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Professione</label><div class="input-container"><input class="input" id="ecg-job" value="${cg.profession}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Costo giornata (€)</label><div class="input-container"><input class="input" id="ecg-cost" type="number" min="0" value="${cg.daily_cost}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Telefono</label><div class="input-container"><input class="input" id="ecg-phone" value="${cg.phone}"></div></div>
+          </div>
+          <p class="caption mt-12" style="font-size:11px">Le modifiche aggiornano subito la pagina (mockup). In produzione il salvataggio passa dal backend.</p>`,
+        actions: [
+          { label: 'Annulla', kind: 'secondary' },
+          { label: 'Salva', kind: 'shuttle', onClick: () => {
+            cg.first_name = document.getElementById('ecg-fn').value || cg.first_name;
+            cg.last_name  = document.getElementById('ecg-ln').value || cg.last_name;
+            cg.relation   = document.getElementById('ecg-rel').value;
+            cg.profession = document.getElementById('ecg-job').value;
+            cg.daily_cost = parseInt(document.getElementById('ecg-cost').value, 10) || cg.daily_cost;
+            cg.phone      = document.getElementById('ecg-phone').value;
+            document.getElementById('cg-name').textContent = cg.first_name + ' ' + cg.last_name;
+            document.getElementById('cg-rel').textContent = cg.relation;
+            document.getElementById('cg-job').textContent = cg.profession;
+            document.getElementById('cg-cost').textContent = '€' + cg.daily_cost + ' / giorno';
+            document.getElementById('cg-phone').textContent = cg.phone;
+            showToast('Dati caregiver aggiornati', 'shuttle');
+          }}
+        ]
+      });
+    }
+
+    function editCar() {
+      openInfoModal({
+        title: 'Modifica auto caregiver',
+        subtitle: 'Aggiorna i dati per ricalcolare l\'impatto ambientale',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field" style="margin-bottom:0"><label class="field-label">Modello</label><div class="input-container"><input class="input" id="ecar-m" value="${car.model}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Targa</label><div class="input-container"><input class="input font-mono" id="ecar-p" value="${car.plate}" style="text-transform:uppercase"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Anno</label><div class="input-container"><input class="input" id="ecar-y" type="number" min="1980" max="2026" value="${car.year}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Alimentazione</label><div class="input-container">
+              <select class="input" id="ecar-f">
+                ${['benzina','diesel','ibrida','elettrica'].map(f => `<option ${f === car.fuel ? 'selected' : ''}>${f}</option>`).join('')}
+              </select></div></div>
+          </div>`,
+        actions: [
+          { label: 'Annulla', kind: 'secondary' },
+          { label: 'Salva', kind: 'shuttle', onClick: () => {
+            car.model = document.getElementById('ecar-m').value || car.model;
+            car.plate = (document.getElementById('ecar-p').value || car.plate).toUpperCase();
+            car.year  = parseInt(document.getElementById('ecar-y').value, 10) || car.year;
+            car.fuel  = document.getElementById('ecar-f').value;
+            const co2Map = { benzina: 0.142, diesel: 0.155, ibrida: 0.090, elettrica: 0.040 };
+            car.co2_per_km = co2Map[car.fuel] || car.co2_per_km;
+            document.getElementById('car-model').textContent = car.model;
+            document.getElementById('car-plate').textContent = car.plate;
+            document.getElementById('car-year').textContent  = car.year;
+            document.getElementById('car-co2').textContent   = car.co2_per_km + ' kg CO₂/km';
+            const fuelEl = document.getElementById('car-fuel');
+            fuelEl.className = 'fuel-badge ' + car.fuel;
+            fuelEl.innerHTML = (car.fuel === 'elettrica' ? aIcon('zap', { size: 12 })
+                              : car.fuel === 'ibrida'    ? aIcon('leaf', { size: 12 })
+                              : aIcon('gas', { size: 12 }))
+                             + car.fuel.charAt(0).toUpperCase() + car.fuel.slice(1);
+            showToast('Auto caregiver aggiornata', 'shuttle');
+          }}
+        ]
+      });
+    }
+  </script>
+</body>
+</html>

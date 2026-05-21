@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Registrazione</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    body { background: var(--bg-page); min-height: 100vh; }
+    .wizard-shell { max-width: 440px; margin: 0 auto; padding: 24px 20px 80px; }
+    .wizard-head { display:flex; align-items:center; gap:10px; margin-bottom: 14px; }
+    .wizard-head .back {
+      width: 38px; height:38px; border-radius:10px;
+      background:#fff; border:1px solid var(--border-soft);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .wizard-head .title { font-weight: 700; font-size: 16px; }
+    .step-content { animation: fadeIn 220ms ease; }
+    .radio-fuel {
+      display:grid; grid-template-columns: 1fr 1fr; gap:8px;
+      margin-top: 4px;
+    }
+    .radio-fuel label {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 14px;
+      background:#fff;
+      border: 1.5px solid var(--border-soft);
+      border-radius: var(--r-md);
+      cursor: pointer;
+      transition: all .15s ease;
+      font-size: 14px;
+    }
+    .radio-fuel label:has(input:checked) {
+      border-color: var(--shuttle-teal);
+      background: var(--shuttle-teal-bg);
+    }
+    .radio-fuel input { accent-color: var(--shuttle-teal); }
+    .legal-card {
+      background: #fff;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-md);
+      padding: 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .legal-card label { display:flex; gap: 10px; cursor: pointer; }
+    .legal-card input { margin-top: 3px; flex-shrink:0; accent-color: var(--shuttle-teal); }
+    .legal-card .lbl-title { font-weight: 700; }
+    .legal-card .lbl-sub { color: var(--medium-gray); font-size: 12px; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="wizard-shell">
+    <div class="wizard-head">
+      <a href="index.html" class="back" aria-label="Indietro"><span id="ico-back"></span></a>
+      <div class="title">Crea account paziente</div>
+    </div>
+
+    <div class="steps"></div>
+    <p class="step-label">Passo <strong id="curStep">1</strong> di 4 · <span id="stepName">Anagrafica</span></p>
+
+    <!-- STEP 1 — Anagrafica -->
+    <section id="step-1" class="step-content">
+      <h2 class="h2 mb-4">I tuoi dati</h2>
+      <p class="caption mb-16">Iniziamo con l'anagrafica base. Tutti i dati sono protetti e usati solo per la gestione delle corse.</p>
+
+      <div class="banner-roma mb-16">
+        <span id="ico-info"></span>
+        <p>Il servizio AureaShuttle copre inizialmente l'area del <strong>Comune di Roma</strong>. Espansione progressiva in altre città nel corso del 2026.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="firstName">Nome</label>
+        <div class="input-container"><input class="input" id="firstName" value="Lucia" placeholder="Nome"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="lastName">Cognome</label>
+        <div class="input-container"><input class="input" id="lastName" value="Marchetti" placeholder="Cognome"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="cf">Codice fiscale</label>
+        <div class="input-container"><input class="input font-mono" id="cf" value="MRCLCU82M55H501T" placeholder="RSSMRA80A01H501Z" maxlength="16" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="phone">Telefono</label>
+        <div class="input-container"><span id="ico-phone"></span><input class="input" id="phone" value="+39 333 712 8439" placeholder="+39 …"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="addr">Indirizzo di residenza</label>
+        <div class="input-container"><span id="ico-pin"></span><input class="input" id="addr" value="Via Tuscolana 124, Roma" placeholder="Via, civico, città"></div>
+        <p class="field-hint">Sarà l'indirizzo di partenza predefinito per le tue corse.</p>
+      </div>
+    </section>
+
+    <!-- STEP 2 — Caregiver -->
+    <section id="step-2" class="step-content" style="display:none">
+      <h2 class="h2 mb-4">Il tuo caregiver</h2>
+      <p class="caption mb-16">Aggiungi la persona che normalmente ti accompagna. Ci servirà per calcolare le giornate lavorative risparmiate grazie al servizio.</p>
+
+      <div class="field">
+        <label class="field-label" for="cgName">Nome</label>
+        <div class="input-container"><input class="input" id="cgName" value="Marco" placeholder="Nome"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="cgSurname">Cognome</label>
+        <div class="input-container"><input class="input" id="cgSurname" value="Marchetti" placeholder="Cognome"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="cgRel">Relazione parentale</label>
+        <div class="input-container">
+          <select class="input" id="cgRel">
+            <option>Figlio</option>
+            <option>Figlia</option>
+            <option>Coniuge</option>
+            <option>Genitore</option>
+            <option>Fratello/Sorella</option>
+            <option>Nipote</option>
+            <option>Altro familiare</option>
+            <option>Assistente professionale</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="cgJob">Professione</label>
+        <div class="input-container"><span id="ico-job"></span><input class="input" id="cgJob" value="Project Manager · settore IT" placeholder="es. Insegnante"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="cgCost">Costo giornata lavorativa <span style="color:var(--medium-gray);font-weight:400">(facoltativo)</span></label>
+        <div class="input-container"><span id="ico-eur"></span><input class="input" id="cgCost" value="180" placeholder="0" type="number" min="0"></div>
+        <p class="field-hint">Usato per stimare il valore economico delle giornate caregiver risparmiate. Non condiviso con terzi.</p>
+      </div>
+    </section>
+
+    <!-- STEP 3 — Auto caregiver -->
+    <section id="step-3" class="step-content" style="display:none">
+      <h2 class="h2 mb-4">Auto del caregiver</h2>
+      <p class="caption mb-16">Servirà per calcolare l'impatto ambientale: ogni corsa AureaShuttle è un viaggio in auto privata evitato. Anche dati indicativi vanno bene.</p>
+
+      <div class="field">
+        <label class="field-label" for="carModel">Modello</label>
+        <div class="input-container"><span id="ico-car"></span><input class="input" id="carModel" value="Fiat 500X" placeholder="es. Volkswagen Golf"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="carPlate">Targa</label>
+        <div class="input-container"><input class="input font-mono" id="carPlate" value="GH 481 PA" placeholder="AA 000 BB" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="carYear">Anno</label>
+        <div class="input-container"><input class="input" id="carYear" value="2019" placeholder="2020" type="number" min="1980" max="2026"></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Alimentazione</label>
+        <div class="radio-fuel">
+          <label><input type="radio" name="fuel" value="benzina" checked> Benzina</label>
+          <label><input type="radio" name="fuel" value="diesel"> Diesel</label>
+          <label><input type="radio" name="fuel" value="ibrida"> Ibrida</label>
+          <label><input type="radio" name="fuel" value="elettrica"> Elettrica</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 — Consensi -->
+    <section id="step-4" class="step-content" style="display:none">
+      <h2 class="h2 mb-4">Termini & consensi</h2>
+      <p class="caption mb-16">Ci servono solo due conferme per attivare il tuo account.</p>
+
+      <div class="legal-card">
+        <label>
+          <input type="checkbox" id="agreeTerms" checked>
+          <span>
+            <span class="lbl-title">Accetto i termini di servizio</span>
+            <span class="lbl-sub">Trasporto sanitario non d'urgenza, copertura Comune di Roma, pacchetti corse a scalare. <a href="#" onclick="event.preventDefault();event.stopPropagation();openTerms()" style="color:var(--shuttle-teal-dark);font-weight:700">Leggi termini</a></span>
+          </span>
+        </label>
+      </div>
+      <div class="legal-card">
+        <label>
+          <input type="checkbox" id="agreePrivacy" checked>
+          <span>
+            <span class="lbl-title">Privacy & GDPR</span>
+            <span class="lbl-sub">Trattamento dati personali e sanitari secondo il Reg. UE 2016/679. <a href="#" onclick="event.preventDefault();event.stopPropagation();openPrivacy()" style="color:var(--shuttle-teal-dark);font-weight:700">Leggi informativa</a></span>
+          </span>
+        </label>
+      </div>
+      <div class="legal-card">
+        <label>
+          <input type="checkbox" id="agreeMarketing">
+          <span>
+            <span class="lbl-title">Comunicazioni di servizio <span style="color:var(--medium-gray);font-weight:400">(facoltativo)</span></span>
+            <span class="lbl-sub">Aggiornamenti sui pacchetti e nuove convenzioni Aurea Suite.</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="card card--padded mt-16" style="background: var(--shuttle-teal-bg); border-color: #99E9DD">
+        <p style="font-size:13px;color:var(--shuttle-teal-dark);line-height:1.5">
+          <strong>Quasi pronta!</strong> Dopo la registrazione potrai scegliere il tuo primo pacchetto corse o prenotare subito tramite handoff da AureaCare.
+        </p>
+      </div>
+    </section>
+
+    <!-- Nav -->
+    <div class="flex gap-8 mt-24">
+      <button class="btn btn--secondary" id="prevBtn" style="flex:1">Indietro</button>
+      <button class="btn btn--shuttle" id="nextBtn" style="flex:2">Continua</button>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-back').outerHTML = aIcon('arrow-left', { size: 18 });
+    document.getElementById('ico-info').outerHTML = aIcon('info', { size: 20 });
+    document.getElementById('ico-phone').outerHTML = aIcon('phone', { size: 18 });
+    document.getElementById('ico-pin').outerHTML = aIcon('map-pin', { size: 18 });
+    document.getElementById('ico-job').outerHTML = aIcon('briefcase', { size: 18 });
+    document.getElementById('ico-eur').outerHTML = aIcon('euro', { size: 18 });
+    document.getElementById('ico-car').outerHTML = aIcon('car', { size: 18 });
+
+    function openTerms() {
+      openInfoModal({
+        title: 'Termini di servizio AureaShuttle',
+        subtitle: 'Estratto sintetico · versione mockup',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div style="max-height:60vh;overflow-y:auto;font-size:13px;line-height:1.55">
+            <p style="font-weight:700">1 · Oggetto del servizio</p>
+            <p>AureaShuttle è un servizio di trasporto sanitario non d'urgenza che opera in regime di convenzione con compagnie taxi e NCC autorizzate nel Comune di Roma.</p>
+            <p style="font-weight:700;margin-top:12px">2 · Pacchetti corse</p>
+            <p>Le corse vengono prepagate tramite pacchetti a scalare (5, 10, 20 corse). Le corse non utilizzate non scadono e si cumulano con eventuali ricariche successive. Tariffa per corsa A/R: €102 (corsa €80 + diritti fissi €11+€11).</p>
+            <p style="font-weight:700;margin-top:12px">3 · Approvazione</p>
+            <p>Ogni richiesta corsa viene sottoposta ad approvazione da parte di AureaShuttle entro 2-4 ore lavorative. Il wallet viene addebitato solo dopo approvazione.</p>
+            <p style="font-weight:700;margin-top:12px">4 · Annullamenti</p>
+            <p>L'annullamento entro 4 ore dall'orario di partenza è gratuito. Oltre tale soglia il servizio si riserva di trattenere i diritti fissi (€11 + €11 A/R).</p>
+            <p style="font-weight:700;margin-top:12px">5 · Rimborsi</p>
+            <p>I pacchetti non sono rimborsabili in denaro, ma le corse residue sono trasferibili a un familiare di primo grado previa comunicazione.</p>
+            <p style="font-weight:700;margin-top:12px">6 · Foro competente</p>
+            <p>Foro di Roma. Per controversie applicabile il Codice del Consumo.</p>
+          </div>
+          <p class="caption mt-12" style="font-size:11px">Versione completa al lancio del servizio · v0.1 POC</p>`,
+        actions: [{ label: 'Ho letto', kind: 'shuttle' }]
+      });
+    }
+
+    function openPrivacy() {
+      openInfoModal({
+        title: 'Informativa Privacy & GDPR',
+        subtitle: 'Reg. UE 2016/679 · estratto mockup',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div style="max-height:60vh;overflow-y:auto;font-size:13px;line-height:1.55">
+            <p style="font-weight:700">Titolare del trattamento</p>
+            <p>AureaShuttle S.r.l. — sede legale a Roma. Email DPO: <span class="font-mono">dpo@aurea.it</span>.</p>
+            <p style="font-weight:700;margin-top:12px">Categorie di dati trattati</p>
+            <ul style="margin-left:18px">
+              <li>Anagrafica: nome, cognome, codice fiscale, contatti.</li>
+              <li>Dati sanitari: prestazione di destinazione (solo nome struttura), eventuali note al tassista.</li>
+              <li>Dati operativi: cronologia corse, wallet, pagamenti.</li>
+            </ul>
+            <p style="font-weight:700;margin-top:12px">Finalità</p>
+            <p>Erogazione del servizio di trasporto sanitario, gestione del wallet pacchetti, fatturazione, calcolo ESG aggregato (anonimo).</p>
+            <p style="font-weight:700;margin-top:12px">Conservazione</p>
+            <p>10 anni per i dati fiscali, 5 anni per i dati sanitari, 24 mesi per i log di accesso.</p>
+            <p style="font-weight:700;margin-top:12px">Diritti dell'interessato</p>
+            <p>Accesso, rettifica, cancellazione, portabilità, opposizione. Scrivi a <span class="font-mono">privacy@aurea.it</span>.</p>
+            <p style="font-weight:700;margin-top:12px">Trasferimenti</p>
+            <p>I dati restano sui server europei. Le compagnie taxi convenzionate ricevono solo i dati strettamente necessari (nome paziente, indirizzo, destinazione).</p>
+          </div>
+          <p class="caption mt-12" style="font-size:11px">Versione completa nell'area legale · v0.1 POC</p>`,
+        actions: [{ label: 'Ho letto', kind: 'shuttle' }]
+      });
+    }
+
+    const totalSteps = 4;
+    const stepNames = ['Anagrafica', 'Caregiver', 'Auto caregiver', 'Conferma'];
+    let current = 1;
+
+    function render() {
+      setWizardStep(current, totalSteps);
+      document.getElementById('curStep').textContent = current;
+      document.getElementById('stepName').textContent = stepNames[current - 1];
+      for (let i = 1; i <= totalSteps; i++) {
+        document.getElementById('step-' + i).style.display = (i === current) ? 'block' : 'none';
+      }
+      document.getElementById('prevBtn').disabled = (current === 1);
+      document.getElementById('prevBtn').style.opacity = (current === 1) ? '0.5' : '1';
+      document.getElementById('nextBtn').textContent = (current === totalSteps) ? 'Conferma e crea account' : 'Continua';
+    }
+    document.getElementById('prevBtn').addEventListener('click', () => { if (current > 1) { current--; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (current < totalSteps) { current++; render(); window.scrollTo({top:0,behavior:'smooth'}); return; }
+      // submit
+      if (!document.getElementById('agreeTerms').checked || !document.getElementById('agreePrivacy').checked) {
+        return showToast('Conferma termini e privacy per continuare', 'error');
+      }
+      setAuth({
+        email: 'lucia.marchetti@example.it',
+        role: 'patient',
+        patient_id: 'PAT-00142',
+        name: 'Lucia Marchetti',
+        apps: ['aureavia','aureashuttle','aureacare']
+      });
+      showToast('Account creato. Benvenuta!', 'shuttle');
+      setTimeout(() => location.href = 'home.html', 800);
+    });
+    render();
+  </script>
+</body>
+</html>

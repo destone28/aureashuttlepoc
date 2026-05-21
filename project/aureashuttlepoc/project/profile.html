@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Profilo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    .profile-avatar {
+      width:72px; height:72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--shuttle-teal), var(--shuttle-teal-dark));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 26px;
+    }
+    .data-block {
+      background:#fff;
+      border:1px solid var(--border-soft);
+      border-radius: var(--r-md);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .data-block .head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+    .data-block .head h3 { font-size: 14px; font-weight: 700; }
+    .data-block .data-row { display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed var(--border-soft); font-size: 14px; gap: 10px; }
+    .data-block .data-row:last-child { border-bottom: none; }
+    .data-block .k { color: var(--medium-gray); }
+    .data-block .v { font-weight: 700; text-align: right; max-width: 65%; }
+
+    /* Settings list */
+    .settings-list { background: #fff; border: 1px solid var(--border-soft); border-radius: var(--r-md); overflow: hidden; }
+    .settings-row {
+      display:flex; align-items:center; gap:12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      cursor: pointer;
+      text-decoration: none; color: inherit;
+      transition: background .15s ease;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row:hover { background: var(--light-gray); }
+    .settings-row .ico { color: var(--medium-gray); }
+    .settings-row .body { flex: 1; }
+    .settings-row .body p { font-size: 14px; font-weight: 600; }
+    .settings-row .body .sub { font-size: 12px; color: var(--medium-gray); font-weight: 400; margin-top: 2px; }
+    .settings-row.danger .body p { color: var(--error); }
+  </style>
+</head>
+<body>
+  <div class="patient-app">
+    <header class="patient-header">
+      <div class="brand">
+        <div class="brand-logo">A<span class="brand-badge">SHUT</span></div>
+        <span>Profilo</span>
+      </div>
+      <div class="app-switcher-wrap">
+        <button class="icon-btn" data-app-switcher><span id="ico-grid"></span></button>
+      </div>
+      <button class="icon-btn" aria-label="Impostazioni" onclick="openSettings()"><span id="ico-settings"></span></button>
+    </header>
+
+    <div class="patient-content">
+      <!-- Anagrafica -->
+      <div class="card card--padded mb-16" style="display:flex;align-items:center;gap:14px">
+        <div class="profile-avatar" id="avatar">LM</div>
+        <div style="flex:1">
+          <p class="h3" id="full-name">Lucia Marchetti</p>
+          <p class="caption" id="email">lucia.marchetti@example.it</p>
+          <p class="caption" id="phone">+39 333 712 8439</p>
+        </div>
+        <button class="icon-btn" onclick="editProfile()"><span id="ico-edit-prof"></span></button>
+      </div>
+
+      <!-- ESG distintiva -->
+      <div class="divider-eyebrow" style="margin-top:0"><span>Il tuo impatto ESG</span><span class="line"></span></div>
+      <p class="caption mb-12">Cuore di AureaShuttle: ogni corsa genera valore sociale, ambientale e sanitario. Il calcolo è personalizzato sulla tua attività.</p>
+
+      <div class="esg-kpi-grid mb-16">
+        <div class="esg-kpi">
+          <div class="esg-kpi-icon"><span id="ico-cal2"></span></div>
+          <p class="esg-kpi-num" id="kpi-days">8</p>
+          <p class="esg-kpi-lbl">Giornate caregiver risparmiate</p>
+        </div>
+        <div class="esg-kpi kpi--warm">
+          <div class="esg-kpi-icon"><span id="ico-eur"></span></div>
+          <p class="esg-kpi-num">€<span id="kpi-eur">1.440</span></p>
+          <p class="esg-kpi-lbl">Valore tempo recuperato</p>
+        </div>
+        <div class="esg-kpi kpi--green">
+          <div class="esg-kpi-icon"><span id="ico-leaf"></span></div>
+          <p class="esg-kpi-num"><span id="kpi-co2">142</span><span style="font-size:14px;font-weight:400;color:var(--medium-gray)">kg</span></p>
+          <p class="esg-kpi-lbl">CO₂ evitata</p>
+        </div>
+        <div class="esg-kpi kpi--blue">
+          <div class="esg-kpi-icon"><span id="ico-heart"></span></div>
+          <p class="esg-kpi-num" id="kpi-cures">6</p>
+          <p class="esg-kpi-lbl">Cure portate a termine</p>
+        </div>
+      </div>
+
+      <!-- Chart impatto nel tempo -->
+      <div class="card card--padded mb-16">
+        <div class="flex justify-between items-start mb-12">
+          <div>
+            <p style="font-weight:700">Andamento impatto · ultimi 6 mesi</p>
+            <p class="caption">Corse completate e kg CO₂ evitati</p>
+          </div>
+        </div>
+        <svg width="100%" height="160" viewBox="0 0 400 160">
+          <defs>
+            <linearGradient id="tealFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0EA5A4" stop-opacity=".25"/>
+              <stop offset="100%" stop-color="#0EA5A4" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#F0F0F0" stroke-width="1">
+            <line x1="30" y1="20"  x2="390" y2="20"/>
+            <line x1="30" y1="60"  x2="390" y2="60"/>
+            <line x1="30" y1="100" x2="390" y2="100"/>
+            <line x1="30" y1="140" x2="390" y2="140"/>
+          </g>
+          <g font-family="Open Sans" font-size="9" fill="#999" text-anchor="end">
+            <text x="26" y="24">200</text>
+            <text x="26" y="64">150</text>
+            <text x="26" y="104">100</text>
+            <text x="26" y="144">50</text>
+          </g>
+          <path d="M 60 130 L 120 122 L 180 108 L 240 92 L 300 70 L 360 48 L 360 140 L 60 140 Z" fill="url(#tealFill)"/>
+          <polyline points="60,130 120,122 180,108 240,92 300,70 360,48" fill="none" stroke="#0EA5A4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <g fill="#0EA5A4">
+            <circle cx="60"  cy="130" r="3.5"/>
+            <circle cx="120" cy="122" r="3.5"/>
+            <circle cx="180" cy="108" r="3.5"/>
+            <circle cx="240" cy="92"  r="3.5"/>
+            <circle cx="300" cy="70"  r="3.5"/>
+            <circle cx="360" cy="48"  r="4.5" stroke="#fff" stroke-width="2"/>
+          </g>
+          <g font-family="Open Sans" font-size="10" fill="#666" text-anchor="middle">
+            <text x="60"  y="156">Dic</text>
+            <text x="120" y="156">Gen</text>
+            <text x="180" y="156">Feb</text>
+            <text x="240" y="156">Mar</text>
+            <text x="300" y="156">Apr</text>
+            <text x="360" y="156" font-weight="700" fill="#0F766E">Mag</text>
+          </g>
+        </svg>
+        <p class="caption mt-8">Trend in crescita: <strong style="color: var(--shuttle-teal-dark)">+24% di km privati evitati</strong> rispetto al trimestre scorso.</p>
+      </div>
+
+      <!-- SROI card -->
+      <div class="card card--padded mb-16" style="background: linear-gradient(135deg, var(--shuttle-teal-bg), var(--shuttle-teal-light)); border-color: #99E9DD">
+        <div class="flex items-center gap-12 mb-8">
+          <div style="width:42px;height:42px;border-radius:12px;background:#fff;color:var(--shuttle-teal-dark);display:flex;align-items:center;justify-content:center">
+            <span id="ico-sroi"></span>
+          </div>
+          <div>
+            <p class="eyebrow" style="color: var(--shuttle-teal-dark)">SROI personale</p>
+            <p class="h3" style="margin-top: 2px">3.0× ritorno sociale</p>
+          </div>
+        </div>
+        <p style="font-size: 14px; line-height: 1.5; color: var(--shuttle-teal-dark)">
+          Ogni <strong>€100</strong> spesi in trasporto AureaShuttle generano circa <strong>€300 di impatto sociale</strong>:
+          tempo recuperato dal caregiver + emissioni evitate + continuità terapeutica.
+        </p>
+        <div class="flex gap-8 mt-12">
+          <div style="flex:1; padding:10px; background:rgba(255,255,255,.7); border-radius:10px; text-align:center">
+            <p style="font-size: 16px; font-weight: 700">€<span id="invested">1.122</span></p>
+            <p class="caption">investito Q2</p>
+          </div>
+          <div style="flex:1; padding:10px; background:#fff; border-radius:10px; text-align:center">
+            <p style="font-size: 16px; font-weight: 700; color: var(--shuttle-teal-dark)">€<span id="generated">3.366</span></p>
+            <p class="caption">impatto generato</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anagrafica completa -->
+      <div class="divider-eyebrow"><span>Dati anagrafici</span><span class="line"></span></div>
+      <div class="data-block">
+        <div class="data-row"><span class="k">Codice fiscale</span><span class="v font-mono" style="font-size: 12px" id="d-cf">—</span></div>
+        <div class="data-row"><span class="k">Data di nascita</span><span class="v" id="d-birth">—</span></div>
+        <div class="data-row"><span class="k">Residenza</span><span class="v" id="d-addr">—</span></div>
+        <div class="data-row"><span class="k">Quartiere</span><span class="v" id="d-district">—</span></div>
+      </div>
+
+      <a href="caregiver.html" class="list-row">
+        <div class="row-icon"><span id="ico-cg"></span></div>
+        <div class="row-body">
+          <div class="row-title">Caregiver &amp; auto</div>
+          <div class="row-meta">Modifica dati per ESG ambientale</div>
+        </div>
+        <span id="ico-chev"></span>
+      </a>
+
+      <!-- Settings -->
+      <div class="divider-eyebrow"><span>Impostazioni</span><span class="line"></span></div>
+      <div class="settings-list">
+        <a class="settings-row" href="#" onclick="event.preventDefault();openNotifPrefs()">
+          <span id="ico-bell-s"></span>
+          <div class="body">
+            <p>Notifiche</p>
+            <p class="sub">Push, email, SMS per stati corsa</p>
+          </div>
+          <span id="ico-chev1"></span>
+        </a>
+        <a class="settings-row" href="#" onclick="event.preventDefault();openPrivacyCenter()">
+          <span id="ico-shield"></span>
+          <div class="body">
+            <p>Privacy &amp; sicurezza</p>
+            <p class="sub">Gestione consensi GDPR</p>
+          </div>
+          <span id="ico-chev2"></span>
+        </a>
+        <a class="settings-row" href="#" onclick="event.preventDefault();openHelp()">
+          <span id="ico-help"></span>
+          <div class="body">
+            <p>Aiuto e supporto</p>
+            <p class="sub">FAQ, contatti, dispute</p>
+          </div>
+          <span id="ico-chev3"></span>
+        </a>
+        <a class="settings-row danger" href="#" onclick="event.preventDefault();logout()">
+          <span id="ico-logout"></span>
+          <div class="body">
+            <p>Esci dall'account</p>
+            <p class="sub">Logout da Aurea Suite</p>
+          </div>
+          <span id="ico-chev4"></span>
+        </a>
+      </div>
+
+      <p class="caption text-center mt-16" style="font-size: 11px">AureaShuttle · Trasporto sanitario assistito · v0.1 POC</p>
+    </div>
+
+    <nav class="bottom-nav">
+      <a class="nav-item" href="home.html"><span id="nv-home"></span>Home</a>
+      <a class="nav-item" href="my-rides.html"><span id="nv-rides"></span>Corse</a>
+      <a class="nav-item" href="wallet.html"><span id="nv-wallet"></span>Wallet</a>
+      <a class="nav-item active" href="profile.html"><span id="nv-profile"></span>Profilo</a>
+    </nav>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-grid').outerHTML     = aIcon('grid', { size: 20 });
+    document.getElementById('ico-settings').outerHTML = aIcon('settings', { size: 20 });
+    document.getElementById('ico-edit-prof').outerHTML= aIcon('edit', { size: 18 });
+    document.getElementById('ico-cal2').outerHTML     = aIcon('calendar', { size: 18 });
+    document.getElementById('ico-eur').outerHTML      = aIcon('euro', { size: 18 });
+    document.getElementById('ico-leaf').outerHTML     = aIcon('leaf', { size: 18 });
+    document.getElementById('ico-heart').outerHTML    = aIcon('heart', { size: 18 });
+    document.getElementById('ico-sroi').outerHTML     = aIcon('trending-up', { size: 22 });
+    document.getElementById('ico-cg').outerHTML       = aIcon('users', { size: 18 });
+    document.getElementById('ico-chev').outerHTML     = aIcon('chevron-right', { size: 18, cls: 'text-muted' });
+    document.getElementById('ico-bell-s').outerHTML   = aIcon('bell', { size: 18 });
+    document.getElementById('ico-shield').outerHTML   = aIcon('shield', { size: 18 });
+    document.getElementById('ico-help').outerHTML     = aIcon('help-circle', { size: 18 });
+    document.getElementById('ico-logout').outerHTML   = aIcon('log-out', { size: 18 });
+    document.getElementById('ico-chev1').outerHTML    = aIcon('chevron-right', { size: 18, cls: 'text-muted' });
+    document.getElementById('ico-chev2').outerHTML    = aIcon('chevron-right', { size: 18, cls: 'text-muted' });
+    document.getElementById('ico-chev3').outerHTML    = aIcon('chevron-right', { size: 18, cls: 'text-muted' });
+    document.getElementById('ico-chev4').outerHTML    = aIcon('chevron-right', { size: 18, cls: 'text-muted' });
+    document.getElementById('nv-home').outerHTML   = aIcon('home',   { size: 22 });
+    document.getElementById('nv-rides').outerHTML  = aIcon('truck',  { size: 22 });
+    document.getElementById('nv-wallet').outerHTML = aIcon('wallet', { size: 22 });
+    document.getElementById('nv-profile').outerHTML= aIcon('user',   { size: 22 });
+
+    const p = MOCK.patient;
+    const esg = MOCK.esgPersonal;
+
+    document.getElementById('avatar').textContent = p.avatar_initials;
+    document.getElementById('full-name').textContent = p.first_name + ' ' + p.last_name;
+    document.getElementById('email').textContent = p.email;
+    document.getElementById('phone').textContent = p.phone;
+    document.getElementById('d-cf').textContent  = p.cf;
+    document.getElementById('d-birth').textContent = p.birth;
+    document.getElementById('d-addr').textContent = p.address;
+    document.getElementById('d-district').textContent = p.district;
+
+    document.getElementById('kpi-days').textContent  = esg.caregiver_days_saved;
+    document.getElementById('kpi-eur').textContent   = esg.caregiver_eur_saved.toLocaleString('it-IT');
+    document.getElementById('kpi-co2').textContent   = esg.co2_kg_avoided;
+    document.getElementById('kpi-cures').textContent = esg.cures_completed;
+    document.getElementById('invested').textContent  = (esg.rides_done * 102).toLocaleString('it-IT');
+    document.getElementById('generated').textContent = (esg.rides_done * 102 * 3).toLocaleString('it-IT');
+
+    // ---------- Modali profilo / impostazioni ----------
+    function editProfile() {
+      openInfoModal({
+        title: 'Modifica profilo',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field" style="margin-bottom:0"><label class="field-label">Nome</label><div class="input-container"><input class="input" id="ep-fn" value="${p.first_name}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Cognome</label><div class="input-container"><input class="input" id="ep-ln" value="${p.last_name}"></div></div>
+            <div class="field" style="margin-bottom:0;grid-column:span 2"><label class="field-label">Email</label><div class="input-container"><input class="input" id="ep-em" type="email" value="${p.email}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Telefono</label><div class="input-container"><input class="input" id="ep-ph" value="${p.phone}"></div></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label">Indirizzo</label><div class="input-container"><input class="input" id="ep-ad" value="${p.address}"></div></div>
+          </div>
+          <p class="caption mt-12" style="font-size:11px">Codice fiscale e data di nascita non sono modificabili. Per cambiarli, scrivi a <span class="font-mono">supporto@aurea.it</span>.</p>`,
+        actions: [
+          { label: 'Annulla', kind: 'secondary' },
+          { label: 'Salva', kind: 'shuttle', onClick: () => {
+            p.first_name = document.getElementById('ep-fn').value || p.first_name;
+            p.last_name  = document.getElementById('ep-ln').value || p.last_name;
+            p.email      = document.getElementById('ep-em').value || p.email;
+            p.phone      = document.getElementById('ep-ph').value || p.phone;
+            p.address    = document.getElementById('ep-ad').value || p.address;
+            document.getElementById('full-name').textContent = p.first_name + ' ' + p.last_name;
+            document.getElementById('email').textContent     = p.email;
+            document.getElementById('phone').textContent     = p.phone;
+            document.getElementById('d-addr').textContent    = p.address;
+            showToast('Profilo aggiornato', 'shuttle');
+          }}
+        ]
+      });
+    }
+
+    function openSettings() {
+      openInfoModal({
+        title: 'Impostazioni rapide',
+        accent: 'shuttle',
+        bodyHTML: `
+          <div class="settings-list">
+            <a class="settings-row" href="#" onclick="event.preventDefault();this.closest('.modal-overlay').remove();openNotifPrefs()">
+              ${aIcon('bell',{size:18})}<div class="body"><p>Preferenze notifiche</p><p class="sub">Push, email, SMS</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+            <a class="settings-row" href="#" onclick="event.preventDefault();this.closest('.modal-overlay').remove();openPrivacyCenter()">
+              ${aIcon('shield',{size:18})}<div class="body"><p>Privacy & consensi</p><p class="sub">Gestione GDPR</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+            <a class="settings-row" href="#" onclick="event.preventDefault();this.closest('.modal-overlay').remove();openHelp()">
+              ${aIcon('help-circle',{size:18})}<div class="body"><p>Aiuto e supporto</p><p class="sub">FAQ, contatti</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+          </div>`,
+        actions: [{ label: 'Chiudi', kind: 'secondary' }]
+      });
+    }
+
+    function openNotifPrefs() {
+      const channels = [
+        { id: 'push',  label: 'Push', sub: 'Stato approvazione, partenza, arrivo', on: true },
+        { id: 'email', label: 'Email', sub: 'Ricevute, riepiloghi mensili', on: true },
+        { id: 'sms',   label: 'SMS', sub: 'Solo eventi critici (annullamento)', on: false }
+      ];
+      openInfoModal({
+        title: 'Preferenze notifiche',
+        accent: 'shuttle',
+        bodyHTML: `
+          <div class="settings-list">
+            ${channels.map(c => `
+              <div class="settings-row" style="cursor:default">
+                <div class="body"><p>${c.label}</p><p class="sub">${c.sub}</p></div>
+                <button class="toggle-switch ${c.on ? 'on' : ''}" data-ch="${c.id}" onclick="this.classList.toggle('on')" style="position:relative;width:38px;height:22px;background:${c.on ? 'var(--shuttle-teal)' : 'var(--border-gray)'};border-radius:999px;border:none;cursor:pointer"></button>
+              </div>`).join('')}
+          </div>
+          <style>.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .15s}.toggle-switch.on{background:var(--shuttle-teal)!important}.toggle-switch.on::after{transform:translateX(16px)}</style>
+          <p class="caption mt-12" style="font-size:11px">Modifiche salvate localmente nel mockup. In produzione passano dal backend.</p>`,
+        actions: [
+          { label: 'Annulla', kind: 'secondary' },
+          { label: 'Salva preferenze', kind: 'shuttle', onClick: () => showToast('Preferenze notifiche salvate', 'shuttle') }
+        ]
+      });
+    }
+
+    function openPrivacyCenter() {
+      openInfoModal({
+        title: 'Privacy & consensi',
+        subtitle: 'Centro gestione GDPR',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div class="settings-list">
+            <div class="settings-row" style="cursor:default">
+              <div class="body"><p>Trattamento dati sanitari</p><p class="sub">Necessario per il servizio. Non disattivabile.</p></div>
+              <span class="badge badge--approved" style="font-size:10px">Obbligatorio</span>
+            </div>
+            <div class="settings-row" style="cursor:default">
+              <div class="body"><p>Profilazione ESG anonima</p><p class="sub">I tuoi km percorsi alimentano i KPI aggregati anonimi.</p></div>
+              <button class="toggle-switch on" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <div class="settings-row" style="cursor:default">
+              <div class="body"><p>Comunicazioni marketing</p><p class="sub">Nuovi pacchetti e convenzioni Aurea Suite.</p></div>
+              <button class="toggle-switch" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <a class="settings-row danger" href="#" onclick="event.preventDefault();showToast('Richiesta esportazione dati inviata', 'info')">
+              ${aIcon('download',{size:18})}
+              <div class="body"><p>Esporta i miei dati</p><p class="sub">Ricevi un archivio JSON via email entro 48h.</p></div>
+              ${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+            <a class="settings-row danger" href="#" onclick="event.preventDefault();showConfirmDialog('Eliminare account?','Operazione irreversibile. Tutte le corse residue verranno perdute.', () => showToast('Richiesta cancellazione inviata · ti contatteremo','info'), {danger:true,confirmLabel:'Procedi'})">
+              ${aIcon('x-circle',{size:18})}
+              <div class="body"><p>Elimina account</p><p class="sub">Cancellazione definitiva dei dati.</p></div>
+              ${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+          </div>`,
+        actions: [{ label: 'Chiudi', kind: 'secondary' }]
+      });
+    }
+
+    function openHelp() {
+      const faqs = [
+        ['Come funziona il wallet a corse?', 'Acquisti un pacchetto (5/10/20 corse). Ogni corsa A/R scala 1 unità. Le corse non scadono.'],
+        ['Quando viene addebitata la corsa?', 'Solo dopo l\'approvazione dell\'admin AureaShuttle, non al momento della richiesta.'],
+        ['Posso modificare una corsa già inviata?', 'Solo finché è in stato "In approvazione". Dopo l\'approvazione, devi annullare e reinserirla.'],
+        ['L\'app copre fuori Roma?', 'Per ora solo Comune di Roma. Espansione progressiva nel 2026.'],
+        ['Come funziona il caregiver?', 'È un secondo contatto opzionale che riceve aggiornamenti sulle corse. Serve anche per calcolare il tuo impatto ESG.']
+      ];
+      openInfoModal({
+        title: 'Aiuto e supporto',
+        subtitle: 'FAQ, contatti e dispute',
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div class="divider-eyebrow" style="margin-top:0"><span>Domande frequenti</span><span class="line"></span></div>
+          ${faqs.map(([q, a]) => `<details style="border:1px solid var(--border-soft);border-radius:8px;padding:10px 14px;margin-bottom:8px">
+            <summary style="font-weight:700;font-size:13px;cursor:pointer">${q}</summary>
+            <p style="font-size:13px;color:var(--medium-gray);margin-top:6px;line-height:1.5">${a}</p>
+          </details>`).join('')}
+          <div class="divider-eyebrow"><span>Contatti diretti</span><span class="line"></span></div>
+          <div class="settings-list">
+            <a class="settings-row" href="#" onclick="event.preventDefault();showToast('Chat con operatore avviata (mockup)','shuttle')">
+              ${aIcon('users',{size:18})}<div class="body"><p>Chat con operatore</p><p class="sub">Lun–Ven 9:00–19:00</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+            <a class="settings-row" href="mailto:supporto@aurea.it">
+              ${aIcon('mail',{size:18})}<div class="body"><p>supporto@aurea.it</p><p class="sub">Risposta entro 24 ore lavorative</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+            <a class="settings-row" href="tel:+390600000000">
+              ${aIcon('phone',{size:18})}<div class="body"><p>+39 06 0000 0000</p><p class="sub">Numero verde · 8:00–20:00</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+            </a>
+          </div>`,
+        actions: [{ label: 'Chiudi', kind: 'secondary' }]
+      });
+    }
+  </script>
+</body>
+</html>

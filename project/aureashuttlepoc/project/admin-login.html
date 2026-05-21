@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AureaShuttle · Admin login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #f4f1eb;
+    }
+    @media (max-width: 880px) { body { grid-template-columns: 1fr; } .sidebar-illo { display: none; } }
+    .sidebar-illo {
+      background: linear-gradient(135deg, #1a1d24, #2D2D2D);
+      color: #fff;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar-illo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(14,165,164,.25), transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(255,140,0,.15), transparent 50%);
+    }
+    .sidebar-illo > * { position: relative; }
+    .sidebar-illo .b-logo {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+      color: #fff;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size: 26px;
+      position: relative;
+    }
+    .sidebar-illo .b-logo::after {
+      content: 'S';
+      position: absolute;
+      bottom: -4px; right: -4px;
+      width: 20px; height: 20px;
+      background: var(--shuttle-teal);
+      border-radius: 6px;
+      display:flex; align-items:center; justify-content:center;
+      font-size: 11px;
+      border: 2px solid #1a1d24;
+    }
+    .sidebar-illo h1 { font-size: 36px; font-weight: 700; line-height: 1.15; }
+    .sidebar-illo p { color: #B6BBC4; font-size: 15px; line-height: 1.55; max-width: 380px; }
+    .sidebar-illo .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.1); }
+    .sidebar-illo .stat-row .stat-num { font-size: 22px; font-weight: 700; color: var(--shuttle-teal); }
+    .sidebar-illo .stat-row .stat-lbl { font-size: 11px; color: #B6BBC4; }
+    .sidebar-illo .footer { margin-top: auto; font-size: 11px; color: #6E7480; }
+
+    .login-pane {
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 24px;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,140,0,.08), transparent 55%),
+        radial-gradient(circle at 80% 90%, rgba(14,165,164,.10), transparent 55%),
+        linear-gradient(180deg, #FEFCF8, #F4F0E9);
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 60px rgba(45,45,45,.12);
+    }
+    .pill-admin {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: var(--shuttle-teal-light);
+      color: var(--shuttle-teal-dark);
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 999px;
+      letter-spacing: .05em;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar-illo">
+    <div class="b-logo">A</div>
+    <h1>AureaShuttle<br>Admin console</h1>
+    <p>Approva richieste, gestisci compagnie taxi convenzionate, monitora l'impatto ESG aggregato della rete trasporto sanitario su Roma.</p>
+    <div class="stat-row">
+      <div><p class="stat-num">247</p><p class="stat-lbl">CORSE / MESE</p></div>
+      <div><p class="stat-num">12</p><p class="stat-lbl">COMPAGNIE</p></div>
+      <div><p class="stat-num">3.0×</p><p class="stat-lbl">SROI</p></div>
+    </div>
+    <div class="footer">v0.1 POC · Roma · suite Aurea</div>
+  </aside>
+
+  <div class="login-pane">
+    <div class="login-card slide-up">
+      <span class="pill-admin"><span id="ico-admin"></span>AMMINISTRATORE</span>
+      <h2 class="h2 mt-12">Accesso console admin</h2>
+      <p class="caption mb-24">Solo personale autorizzato Aurea. Le credenziali non sono condivise con il flusso paziente.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label class="field-label" for="email">Email aziendale</label>
+          <div class="input-container"><span id="ico-mail"></span><input type="email" id="email" class="input" placeholder="nome.cognome@aurea.it" value="admin@aureashuttle.it" required></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password">Password</label>
+          <div class="input-container"><span id="ico-lock"></span><input type="password" id="password" class="input" placeholder="••••••••" value="demo" required></div>
+        </div>
+        <div class="flex justify-between items-center mb-16">
+          <label style="font-size: 13px; display: flex; gap: 6px; align-items: center; cursor: pointer">
+            <input type="checkbox" checked> Ricordami su questo computer
+          </label>
+          <a href="#" onclick="event.preventDefault();openSSO()" style="font-size: 13px; color: var(--shuttle-teal-dark); font-weight: 700">SSO Aurea</a>
+        </div>
+        <button type="submit" class="btn btn--shuttle btn--block btn--lg">Accedi alla console</button>
+      </form>
+
+      <p class="caption text-center mt-16">
+        <a href="index.html" style="color: var(--medium-gray); text-decoration: underline">Sei un paziente?</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-admin').outerHTML = aIcon('shield', { size: 12 });
+    document.getElementById('ico-mail').outerHTML = aIcon('mail', { size: 18 });
+    document.getElementById('ico-lock').outerHTML = aIcon('lock', { size: 18 });
+
+    (function prefill(){
+      const u = getAuth();
+      if (u && u.role === 'admin') { location.href = 'admin-dashboard.html'; }
+    })();
+
+    function openSSO() {
+      openInfoModal({
+        title: 'Accesso SSO Aurea',
+        subtitle: 'Single Sign-On aziendale (SAML 2.0)',
+        accent: 'shuttle',
+        bodyHTML: `
+          <p class="caption mb-12">Accedi con il tuo identity provider aziendale. Le credenziali admin di AureaShuttle vengono validate via SSO Aurea Suite.</p>
+          <div style="display:grid;gap:8px">
+            <button class="btn btn--secondary" onclick="showToast('Reindirizzamento simulato a Okta…','info')">Continua con Okta</button>
+            <button class="btn btn--secondary" onclick="showToast('Reindirizzamento simulato a Microsoft Entra ID…','info')">Continua con Microsoft Entra ID</button>
+            <button class="btn btn--secondary" onclick="showToast('Reindirizzamento simulato a Google Workspace…','info')">Continua con Google Workspace</button>
+          </div>
+          <p class="caption mt-12" style="font-size:11px">Mockup: nessun reindirizzamento reale. Configurazione SAML disponibile in produzione.</p>`,
+        actions: [{ label: 'Annulla', kind: 'secondary' }]
+      });
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      if (!email) return showToast('Inserisci email e password', 'error');
+      setAuth({
+        email,
+        role: 'admin',
+        name: 'Francesca Rinaldi',
+        avatar: 'FR',
+        apps: ['aureashuttle']
+      });
+      showToast('Benvenuta nella console AureaShuttle', 'shuttle');
+      setTimeout(() => location.href = 'admin-dashboard.html', 600);
+    });
+  </script>
+</body>
+</html>

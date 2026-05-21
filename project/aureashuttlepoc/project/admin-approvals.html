@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AureaShuttle · Coda approvazioni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    .filters {
+      background:#fff;
+      border:1px solid var(--border-soft);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filters .fld { display:flex; flex-direction: column; gap: 4px; }
+    .filters .fld label { font-size: 11px; color: var(--medium-gray); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .filters select, .filters input {
+      padding: 9px 12px;
+      border:1px solid var(--border-soft);
+      border-radius: 8px;
+      background:#FAFAFA;
+      font: inherit;
+      font-size: 13px;
+      min-width: 160px;
+      outline: none;
+    }
+    .filters select:focus, .filters input:focus { border-color: var(--shuttle-teal); background: #fff; }
+
+    .expand-row {
+      background: #FAFBFD;
+    }
+    .expand-row td {
+      padding: 0 !important;
+      border-bottom: 1px solid var(--border-soft) !important;
+    }
+    .expand-inner {
+      padding: 18px 24px;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 24px;
+    }
+    .expand-inner .col p { font-size: 12px; color: var(--medium-gray); }
+    .expand-inner .col .val { font-size: 13px; color: var(--ink); font-weight: 600; margin-top: 2px; }
+    .expand-inner .col .lbl { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--medium-gray); margin-bottom: 4px; }
+  </style>
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="logo">A</div>
+      <a class="sb-item" href="admin-dashboard.html" data-label="Dashboard"><span id="sb1"></span></a>
+      <a class="sb-item active" href="admin-approvals.html" data-label="Approvazioni corse"><span id="sb2"></span></a>
+      <a class="sb-item" href="admin-taxi-companies.html" data-label="Compagnie taxi"><span id="sb3"></span></a>
+      <a class="sb-item" href="#" onclick="event.preventDefault();openPatientsModal()" data-label="Pazienti"><span id="sb4"></span></a>
+      <a class="sb-item" href="#" onclick="event.preventDefault();openEsgReport()" data-label="KPI ESG"><span id="sb5"></span></a>
+      <div class="spacer"></div>
+      <button class="sb-item" data-label="Impostazioni" onclick="openAdminSettings()"><span id="sb6"></span></button>
+      <button class="sb-item" data-label="Esci" onclick="logout()"><span id="sb7"></span></button>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1>Approvazioni corse</h1>
+        <span class="badge badge--warning" style="font-size:13px;padding:6px 12px"><strong id="pending-count">4</strong> in attesa</span>
+        <button class="icon-btn" aria-label="Notifiche" onclick="openAdminNotifications()" style="width:38px;height:38px;background:var(--light-gray);border:none;border-radius:10px"><span id="ico-bell"></span></button>
+        <div class="avatar">FR</div>
+      </header>
+
+      <div class="admin-content">
+        <div class="crumbs mb-16" style="font-size:13px;color:var(--medium-gray)">Console &rsaquo; <a href="admin-dashboard.html" style="color:inherit">Dashboard</a> &rsaquo; <strong style="color:var(--ink)">Coda approvazioni</strong></div>
+
+        <!-- Filtri -->
+        <div class="filters">
+          <div class="fld">
+            <label>Stato</label>
+            <select id="f-status">
+              <option value="all">Tutti</option>
+              <option value="pending" selected>In approvazione</option>
+              <option value="info_requested">Info richieste</option>
+              <option value="approved">Approvate</option>
+              <option value="dispatched">Inviate taxi</option>
+              <option value="accepted">Accettate</option>
+              <option value="in_progress">In corso</option>
+              <option value="completed">Completate</option>
+              <option value="cancelled">Annullate</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>Range data</label>
+            <select id="f-range">
+              <option>Ultimi 7 giorni</option>
+              <option selected>Ultimi 30 giorni</option>
+              <option>Q2 2026</option>
+              <option>Personalizzato…</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>Compagnia taxi</label>
+            <select id="f-taxi">
+              <option value="">Tutte</option>
+            </select>
+          </div>
+          <div class="fld" style="flex:1; min-width: 200px">
+            <label>Cerca paziente / ID</label>
+            <input id="f-search" placeholder="Lucia M…  oppure RIDE-AS-…">
+          </div>
+          <button class="btn btn--secondary btn--sm" onclick="resetFilters()" style="align-self:flex-end">Reset</button>
+        </div>
+
+        <!-- Banner pattern (link a flotta) -->
+        <a class="fleet-link mb-16" href="https://destone28.github.io/aureaviapoc/rides-list.html" target="_blank" rel="noopener">
+          <div class="fleet-icon"><span id="ico-fleet"></span></div>
+          <div class="fleet-body">
+            <p class="fleet-title">Tassisti e corse operative → console AureaVia</p>
+            <p class="fleet-sub">Le corse approvate qui vengono inoltrate automaticamente al driver layer AureaVia.</p>
+          </div>
+          <span class="fleet-arrow"><span id="ico-ext"></span></span>
+        </a>
+
+        <!-- Tabella -->
+        <div class="card card--padded-lg">
+          <table class="data-table" id="req-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Paziente</th>
+                <th>Tratta</th>
+                <th>Quando</th>
+                <th>Costo</th>
+                <th>Wallet</th>
+                <th>Stato</th>
+                <th>Tassista</th>
+                <th style="width:230px">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="req-rows"></tbody>
+          </table>
+          <div id="empty-state" class="text-center" style="padding: 32px; display:none">
+            <p style="color: var(--medium-gray)">Nessuna richiesta corrisponde ai filtri attuali.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale approvazione -->
+  <div class="modal-overlay" id="modal-approve">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Approva e inoltra corsa</div>
+          <p class="caption" id="ma-id">RIDE-AS-…</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-approve')"><span id="ico-mclose"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="card card--padded mb-16" style="background:var(--shuttle-teal-bg);border-color:#99E9DD">
+          <p style="font-size: 13px; color: var(--shuttle-teal-dark); font-weight: 700" id="ma-summary">—</p>
+          <p class="caption mt-4" id="ma-cost">—</p>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="ma-taxi">Compagnia taxi a cui inoltrare</label>
+          <div class="input-container">
+            <span id="ico-truck-m"></span>
+            <select class="input" id="ma-taxi"></select>
+          </div>
+          <p class="field-hint">Solo le compagnie convenzionate attive sono selezionabili.</p>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="ma-notes">Note interne (facoltative)</label>
+          <div class="input-container"><textarea class="input" id="ma-notes" rows="3" placeholder="Es. paziente non deambulante, ingresso secondario disponibile…"></textarea></div>
+        </div>
+
+        <div class="card card--padded" style="background:#FFF6E8;border-color:#F4D5A3">
+          <label style="display:flex;gap:10px;cursor:pointer;align-items:flex-start">
+            <input type="checkbox" id="ma-forward" checked style="margin-top:3px;accent-color: var(--primary-orange)">
+            <span>
+              <p style="font-weight:700;font-size:13px;color:#854F0B">Inoltra alla console flotta AureaVia</p>
+              <p class="caption" style="color:#5e4612">Crea automaticamente la corsa sul driver layer. I tassisti convenzionati la vedranno nella lista disponibili.</p>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn--secondary" onclick="closeModal('modal-approve')">Annulla</button>
+        <button class="btn btn--shuttle" onclick="confirmApprove()">Approva e inoltra</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale rifiuto -->
+  <div class="modal-overlay" id="modal-reject">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Rifiuta richiesta</div>
+        <button class="modal-close" onclick="closeModal('modal-reject')"><span id="ico-mclose2"></span></button>
+      </div>
+      <div class="modal-body">
+        <p class="caption mb-12" id="mr-id">RIDE-AS-…</p>
+        <div class="field">
+          <label class="field-label">Motivo del rifiuto</label>
+          <div class="input-container">
+            <select class="input" id="mr-reason">
+              <option>Wallet insufficiente</option>
+              <option>Piano di cura non attivo</option>
+              <option>Destinazione fuori area copertura</option>
+              <option>Dati incompleti — richiedo info</option>
+              <option>Altro motivo</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Messaggio al paziente</label>
+          <div class="input-container"><textarea class="input" rows="3" placeholder="Spiega in italiano semplice…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn--secondary" onclick="closeModal('modal-reject')">Annulla</button>
+        <button class="btn btn--primary" onclick="closeModal('modal-reject');showToast('Richiesta rifiutata','info')">Conferma rifiuto</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <div class="rotate-hint">
+    <span id="ico-rot"></span>
+    <h2>Console ottimizzata per schermi più grandi</h2>
+    <p>Per usare la coda approvazioni, ruota il dispositivo o accedi da tablet/desktop.</p>
+    <button class="btn btn--primary" onclick="document.querySelector('.rotate-hint').style.display='none'">Continua comunque</button>
+  </div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('sb1').outerHTML = aIcon('bar-chart', { size: 20 });
+    document.getElementById('sb2').outerHTML = aIcon('check-circle', { size: 20 });
+    document.getElementById('sb3').outerHTML = aIcon('building', { size: 20 });
+    document.getElementById('sb4').outerHTML = aIcon('users', { size: 20 });
+    document.getElementById('sb5').outerHTML = aIcon('leaf', { size: 20 });
+    document.getElementById('sb6').outerHTML = aIcon('settings', { size: 20 });
+    document.getElementById('sb7').outerHTML = aIcon('log-out', { size: 20 });
+    document.getElementById('ico-bell').outerHTML  = aIcon('bell', { size: 18 });
+    document.getElementById('ico-rot').outerHTML   = aIcon('rotate', { size: 56 });
+    document.getElementById('ico-fleet').outerHTML = aIcon('truck', { size: 22 });
+    document.getElementById('ico-ext').outerHTML   = aIcon('arrow-up-right', { size: 16 });
+    document.getElementById('ico-truck-m').outerHTML = aIcon('truck', { size: 18 });
+    document.getElementById('ico-mclose').outerHTML  = aIcon('x', { size: 14 });
+    document.getElementById('ico-mclose2').outerHTML = aIcon('x', { size: 14 });
+
+    // Filter populating
+    const taxiSel = document.getElementById('f-taxi');
+    MOCK.taxiCompanies.filter(t => t.status === 'active').forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id; o.textContent = t.name;
+      taxiSel.appendChild(o);
+    });
+    const taxiModalSel = document.getElementById('ma-taxi');
+    MOCK.taxiCompanies.filter(t => t.status === 'active').forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id; o.textContent = `${t.name} · ${t.drivers_active} tassisti attivi`;
+      taxiModalSel.appendChild(o);
+    });
+
+    // Render
+    let expanded = null;
+    function renderRows() {
+      const status = document.getElementById('f-status').value;
+      const search = document.getElementById('f-search').value.trim().toLowerCase();
+      const taxi   = document.getElementById('f-taxi').value;
+
+      let list = MOCK.adminRides;
+      if (status !== 'all') list = list.filter(r => r.status === status);
+      if (search) list = list.filter(r => r.patient.toLowerCase().includes(search) || r.id.toLowerCase().includes(search) || r.patient_id.toLowerCase().includes(search));
+      if (taxi)   list = list.filter(r => r.taxi_company_id === taxi);
+
+      const tbody = document.getElementById('req-rows');
+      const empty = document.getElementById('empty-state');
+      if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'block'; }
+      else empty.style.display = 'none';
+
+      tbody.innerHTML = list.map(r => {
+        const st = MOCK.rideStatusLabel[r.status === 'info_requested' ? 'pending' : r.status] || MOCK.rideStatusLabel.pending;
+        const label = r.status === 'info_requested' ? 'Info richieste' : st.label;
+        const cls   = r.status === 'info_requested' ? 'badge--warning' : st.cls;
+        const isActionable = r.status === 'pending' || r.status === 'info_requested';
+        const taxiCo = r.taxi_company_id ? MOCK.taxiCompanies.find(t => t.id === r.taxi_company_id) : null;
+        const driverCell = taxiCo
+          ? `<div style="font-size:12px"><strong>${taxiCo.name}</strong><div class="cell-sub"><a href="https://destone28.github.io/aureaviapoc/ride-detail.html" target="_blank" rel="noopener" style="color:var(--shuttle-teal-dark);font-weight:700">Vedi su AureaVia →</a></div></div>`
+          : '<span class="cell-sub">—</span>';
+        const actions = isActionable
+          ? `<div class="actions">
+              <button class="btn btn--success btn--sm" onclick="openApprove('${r.id}')">${aIcon('check',{size:12})} Approva</button>
+              <button class="btn btn--warn btn--sm" onclick="event.stopPropagation();showToast('Richiesta info inviata al paziente','info')">Info</button>
+              <button class="btn btn--danger btn--sm" onclick="openReject('${r.id}')">Rifiuta</button>
+            </div>`
+          : `<button class="btn btn--ghost btn--sm" onclick="event.stopPropagation();toggle('${r.id}')">Dettagli</button>`;
+        const careLink = r.linked_care
+          ? `<div class="cell-sub" style="color:var(--care-blue-dark);font-weight:600">↔ ${r.linked_care}</div>`
+          : '';
+
+        return `
+          <tr data-id="${r.id}">
+            <td style="width:28px"><button class="icon-btn" style="width:24px;height:24px;background:transparent" onclick="toggle('${r.id}')">${aIcon('chevron-down',{size:14,cls:'text-muted'})}</button></td>
+            <td><strong class="font-mono" style="font-size:12px">${r.id}</strong>${careLink}</td>
+            <td><div style="font-weight:700">${r.patient}</div><div class="cell-sub font-mono">${r.patient_id}</div></td>
+            <td><div>${r.from}</div><div class="cell-sub">→ ${r.to}</div></td>
+            <td><div>${r.date}</div><div class="cell-sub">inv. ${r.submitted}</div></td>
+            <td><strong>€${r.cost}</strong><div class="cell-sub">${r.round_trip ? 'A/R' : 'andata'}</div></td>
+            <td>€${r.wallet_after}</td>
+            <td><span class="badge ${cls}"><span class="dot"></span>${label}</span></td>
+            <td>${driverCell}</td>
+            <td>${actions}</td>
+          </tr>
+          <tr class="expand-row" id="exp-${r.id}" style="display:none">
+            <td colspan="10">
+              <div class="expand-inner">
+                <div class="col">
+                  <span class="lbl">Dati corsa</span>
+                  <p><span class="val">Partenza:</span> ${r.from}</p>
+                  <p><span class="val">Destinazione:</span> ${r.to}</p>
+                  <p><span class="val">Quando:</span> ${r.date}</p>
+                  <p><span class="val">Tipologia:</span> ${r.round_trip ? 'Andata + ritorno' : 'Solo andata'}</p>
+                </div>
+                <div class="col">
+                  <span class="lbl">Wallet paziente</span>
+                  <p><span class="val">Residuo dopo addebito:</span> €${r.wallet_after}</p>
+                  <p><span class="val">Costo corsa:</span> €${r.cost}</p>
+                  <p style="margin-top:8px"><span class="lbl">Piano cura attivo</span></p>
+                  <p style="font-size:12px;color:var(--medium-gray)">Riferimento fittizio: <span class="font-mono">PLAN-2026-${r.patient_id.slice(-3)}</span> · stato <strong style="color:var(--b-approved-tx)">attivo</strong></p>
+                </div>
+                <div class="col">
+                  <span class="lbl">Collegamenti</span>
+                  ${r.linked_care
+                    ? `<p style="font-size: 13px">↔ Visita AureaCare <a href="#" onclick="event.preventDefault();showToast('Apertura simulata visita AureaCare','info')" class="font-mono" style="color:var(--care-blue-dark);font-weight:700">${r.linked_care}</a></p>`
+                    : `<p style="font-size: 13px; color: var(--medium-gray)">Nessun collegamento con AureaCare</p>`}
+                  ${taxiCo
+                    ? `<p style="font-size: 13px; margin-top: 8px"><strong>Compagnia:</strong> ${taxiCo.name}</p><p class="caption">${taxiCo.contact} · ${taxiCo.phone}</p>`
+                    : ''}
+                </div>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+
+      document.getElementById('pending-count').textContent = MOCK.adminRides.filter(r => r.status === 'pending').length;
+    }
+
+    function toggle(id) {
+      const row = document.getElementById('exp-' + id);
+      if (!row) return;
+      const isOpen = row.style.display !== 'none';
+      document.querySelectorAll('.expand-row').forEach(r => r.style.display = 'none');
+      row.style.display = isOpen ? 'none' : '';
+    }
+
+    // Approve modal
+    let approveId = null;
+    function openApprove(id) {
+      approveId = id;
+      const r = MOCK.adminRides.find(x => x.id === id);
+      document.getElementById('ma-id').textContent = id;
+      document.getElementById('ma-summary').textContent = `${r.patient} · ${r.from} → ${r.to}`;
+      document.getElementById('ma-cost').textContent    = `${r.date} · ${r.round_trip ? 'A/R' : 'solo andata'} · €${r.cost}`;
+      openModal('modal-approve');
+    }
+    function confirmApprove() {
+      const forward = document.getElementById('ma-forward').checked;
+      closeModal('modal-approve');
+      if (forward) {
+        showToast('Corsa ' + approveId + ' approvata · inoltrata alla flotta AureaVia', 'shuttle');
+      } else {
+        showToast('Corsa ' + approveId + ' approvata · NON inoltrata (gestione interna)', 'success');
+      }
+    }
+
+    function openReject(id) {
+      document.getElementById('mr-id').textContent = id;
+      openModal('modal-reject');
+    }
+
+    // Filter listeners
+    document.querySelectorAll('#f-status, #f-range, #f-taxi').forEach(el => el.addEventListener('change', renderRows));
+    document.getElementById('f-search').addEventListener('input', renderRows);
+    function resetFilters() {
+      document.getElementById('f-status').value = 'all';
+      document.getElementById('f-range').value = 'Ultimi 30 giorni';
+      document.getElementById('f-taxi').value = '';
+      document.getElementById('f-search').value = '';
+      renderRows();
+    }
+
+    renderRows();
+
+    // Deep-link from dashboard #RIDE-AS-…
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      setTimeout(() => toggle(id), 100);
+    }
+  </script>
+</body>
+</html>

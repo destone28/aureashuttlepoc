@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AureaShuttle · Compagnie taxi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    .toggle-switch {
+      position: relative;
+      width: 38px; height: 22px;
+      background: var(--border-gray);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background .15s ease;
+      border: none;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .15s ease;
+    }
+    .toggle-switch.on { background: var(--shuttle-teal); }
+    .toggle-switch.on::after { transform: translateX(16px); }
+    .wallet-bar {
+      height: 6px;
+      background: var(--light-gray);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .wallet-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--shuttle-teal), var(--shuttle-teal-dark));
+    }
+  </style>
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="logo">A</div>
+      <a class="sb-item" href="admin-dashboard.html" data-label="Dashboard"><span id="sb1"></span></a>
+      <a class="sb-item" href="admin-approvals.html" data-label="Approvazioni corse"><span id="sb2"></span></a>
+      <a class="sb-item active" href="admin-taxi-companies.html" data-label="Compagnie taxi"><span id="sb3"></span></a>
+      <a class="sb-item" href="#" onclick="event.preventDefault();openPatientsModal()" data-label="Pazienti"><span id="sb4"></span></a>
+      <a class="sb-item" href="#" onclick="event.preventDefault();openEsgReport()" data-label="KPI ESG"><span id="sb5"></span></a>
+      <div class="spacer"></div>
+      <button class="sb-item" data-label="Impostazioni" onclick="openAdminSettings()"><span id="sb6"></span></button>
+      <button class="sb-item" data-label="Esci" onclick="logout()"><span id="sb7"></span></button>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1>Compagnie taxi convenzionate</h1>
+        <button class="btn btn--shuttle btn--sm" onclick="openModal('modal-add')"><span id="ico-plus-h"></span> Aggiungi compagnia</button>
+        <button class="icon-btn" aria-label="Notifiche" onclick="openAdminNotifications()" style="width:38px;height:38px;background:var(--light-gray);border:none;border-radius:10px"><span id="ico-bell"></span></button>
+        <div class="avatar">FR</div>
+      </header>
+
+      <div class="admin-content">
+        <div class="crumbs mb-16" style="font-size:13px;color:var(--medium-gray)">Console &rsaquo; <a href="admin-dashboard.html" style="color:inherit">Dashboard</a> &rsaquo; <strong style="color:var(--ink)">Compagnie taxi</strong></div>
+
+        <!-- Banner verso AureaVia -->
+        <a class="fleet-link mb-20" href="https://destone28.github.io/aureaviapoc/" target="_blank" rel="noopener">
+          <div class="fleet-icon"><span id="ico-fleet"></span></div>
+          <div class="fleet-body">
+            <p class="fleet-title">Per la gestione operativa di tassisti e veicoli, accedi alla console flotta AureaVia →</p>
+            <p class="fleet-sub">Qui gestisci le compagnie convenzionate e il loro wallet operativo. Il dettaglio dei singoli tassisti, le auto e le recensioni vivono su AureaVia.</p>
+          </div>
+          <span class="fleet-arrow"><span id="ico-ext"></span></span>
+        </a>
+
+        <!-- KPI riga -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon teal"><span id="kp1"></span></div>
+            <p class="kpi-label">Compagnie attive</p>
+            <p class="kpi-value">11 <span style="font-size:14px;color:var(--medium-gray);font-weight:400">/ 12</span></p>
+            <p class="kpi-delta up"><span id="tp1"></span> 91% attive</p>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon orange"><span id="kp2"></span></div>
+            <p class="kpi-label">Tassisti attivi totali</p>
+            <p class="kpi-value">757</p>
+            <p class="kpi-delta up"><span id="tp2"></span> +24 vs mese precedente</p>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon green"><span id="kp3"></span></div>
+            <p class="kpi-label">Wallet operativo totale</p>
+            <p class="kpi-value">€32.2k</p>
+            <p class="kpi-delta up"><span id="tp3"></span> 4 compagnie da ricaricare</p>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon purple"><span id="kp4"></span></div>
+            <p class="kpi-label">Corse erogate · mese</p>
+            <p class="kpi-value">350</p>
+            <p class="kpi-delta up"><span id="tp4"></span> +12.4% vs Apr</p>
+          </div>
+        </div>
+
+        <!-- Tabella -->
+        <div class="card card--padded-lg">
+          <div class="flex justify-between items-center mb-12">
+            <h2 style="font-size:17px;font-weight:700">Tutte le compagnie</h2>
+            <div class="flex gap-8">
+              <input class="input" placeholder="Cerca compagnia o P.IVA…" id="search-co" style="background:#FAFAFA;border:1px solid var(--border-soft);padding:8px 12px;border-radius:8px;font-size:13px;min-width:240px">
+            </div>
+          </div>
+
+          <table class="data-table" id="co-table">
+            <thead>
+              <tr>
+                <th>Compagnia</th>
+                <th>P.IVA</th>
+                <th>Contatto</th>
+                <th>Tassisti</th>
+                <th>Wallet operativo</th>
+                <th>Corse mese</th>
+                <th>Stato</th>
+                <th style="width:230px">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="co-rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale aggiungi compagnia -->
+  <div class="modal-overlay" id="modal-add">
+    <div class="modal modal--wide">
+      <div class="modal-header">
+        <div class="modal-title">Aggiungi compagnia taxi convenzionata</div>
+        <button class="modal-close" onclick="closeModal('modal-add')"><span id="ico-close1"></span></button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Ragione sociale</label>
+            <div class="input-container"><input class="input" placeholder="Es. Cooperativa Taxi Roma"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">P.IVA</label>
+            <div class="input-container"><input class="input font-mono" placeholder="00000000000" maxlength="11"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Referente</label>
+            <div class="input-container"><input class="input" placeholder="Nome e cognome"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Email referente</label>
+            <div class="input-container"><input class="input" type="email" placeholder="nome@compagnia.it"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Telefono</label>
+            <div class="input-container"><input class="input" placeholder="+39 06 …"></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">Numero tassisti previsti</label>
+            <div class="input-container"><input class="input" type="number" placeholder="0"></div>
+          </div>
+        </div>
+        <p class="caption mt-16" style="background: var(--shuttle-teal-bg); border:1px solid #99E9DD; padding: 12px; border-radius: 8px">
+          <span id="ico-info-modal"></span>
+          I dati di singoli tassisti e veicoli vanno inseriti dalla console <strong>AureaVia</strong>. Qui registriamo solo il rapporto convenzione e il wallet operativo.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn--secondary" onclick="closeModal('modal-add')">Annulla</button>
+        <button class="btn btn--shuttle" onclick="closeModal('modal-add');showToast('Compagnia aggiunta (simulato)','shuttle')">Aggiungi e attiva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale ricarica wallet operativo -->
+  <div class="modal-overlay" id="modal-topup">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Ricarica wallet operativo</div>
+          <p class="caption" id="tp-name">—</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-topup')"><span id="ico-close2"></span></button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label">Importo (€)</label>
+          <div class="input-container"><span id="ico-eur-m"></span><input class="input" id="tp-amount" type="number" placeholder="1000" min="100" step="100"></div>
+          <p class="field-hint">Min. €100 · suggerito €1.000 - €5.000 per compagnia attiva.</p>
+        </div>
+        <div class="chips mb-12">
+          <button class="chip chip--sm" onclick="document.getElementById('tp-amount').value=500">€500</button>
+          <button class="chip chip--sm" onclick="document.getElementById('tp-amount').value=1000">€1.000</button>
+          <button class="chip chip--sm" onclick="document.getElementById('tp-amount').value=2500">€2.500</button>
+          <button class="chip chip--sm" onclick="document.getElementById('tp-amount').value=5000">€5.000</button>
+        </div>
+        <p class="caption mb-8">Metodo di pagamento</p>
+        <div class="pay-grid">
+          <button class="pay-card" type="button" onclick="finishTopup('Stripe')">
+            <div class="pay-logo stripe">S</div>
+            <div class="pay-body"><p class="pay-name">Stripe</p><p class="pay-sub">Bonifico SEPA / carta business</p></div>
+          </button>
+          <button class="pay-card" type="button" onclick="finishTopup('PayPal')">
+            <div class="pay-logo paypal">PP</div>
+            <div class="pay-body"><p class="pay-name">PayPal</p><p class="pay-sub">Conto business AureaShuttle</p></div>
+          </button>
+          <button class="pay-card" type="button" onclick="finishTopup('Google Pay')">
+            <div class="pay-logo gpay">G&nbsp;Pay</div>
+            <div class="pay-body"><p class="pay-name">Google Pay</p><p class="pay-sub">Account corporate</p></div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <div class="rotate-hint">
+    <span id="ico-rot"></span>
+    <h2>Console ottimizzata per schermi più grandi</h2>
+    <p>Per gestire le compagnie taxi, ruota il dispositivo o accedi da tablet/desktop.</p>
+    <button class="btn btn--primary" onclick="document.querySelector('.rotate-hint').style.display='none'">Continua comunque</button>
+  </div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('sb1').outerHTML = aIcon('bar-chart', { size: 20 });
+    document.getElementById('sb2').outerHTML = aIcon('check-circle', { size: 20 });
+    document.getElementById('sb3').outerHTML = aIcon('building', { size: 20 });
+    document.getElementById('sb4').outerHTML = aIcon('users', { size: 20 });
+    document.getElementById('sb5').outerHTML = aIcon('leaf', { size: 20 });
+    document.getElementById('sb6').outerHTML = aIcon('settings', { size: 20 });
+    document.getElementById('sb7').outerHTML = aIcon('log-out', { size: 20 });
+    document.getElementById('ico-bell').outerHTML = aIcon('bell', { size: 18 });
+    document.getElementById('ico-plus-h').outerHTML = aIcon('plus', { size: 16 });
+    document.getElementById('ico-rot').outerHTML = aIcon('rotate', { size: 56 });
+    document.getElementById('ico-fleet').outerHTML = aIcon('truck', { size: 22 });
+    document.getElementById('ico-ext').outerHTML = aIcon('arrow-up-right', { size: 16 });
+    document.getElementById('ico-close1').outerHTML = aIcon('x', { size: 14 });
+    document.getElementById('ico-close2').outerHTML = aIcon('x', { size: 14 });
+    document.getElementById('ico-eur-m').outerHTML = aIcon('euro', { size: 18 });
+    document.getElementById('ico-info-modal').outerHTML = aIcon('info', { size: 16, cls: 'text-shuttle' });
+
+    document.getElementById('kp1').outerHTML = aIcon('building', { size: 18 });
+    document.getElementById('kp2').outerHTML = aIcon('users', { size: 18 });
+    document.getElementById('kp3').outerHTML = aIcon('wallet', { size: 18 });
+    document.getElementById('kp4').outerHTML = aIcon('truck', { size: 18 });
+    for (let i = 1; i <= 4; i++) document.getElementById('tp' + i).outerHTML = aIcon('trending-up', { size: 12 });
+
+    // Render rows
+    function renderRows() {
+      const q = (document.getElementById('search-co').value || '').toLowerCase().trim();
+      const tbody = document.getElementById('co-rows');
+      tbody.innerHTML = MOCK.taxiCompanies
+        .filter(t => !q || t.name.toLowerCase().includes(q) || t.vat.includes(q))
+        .map(t => {
+          const isActive = t.status === 'active';
+          const walletPct = Math.min(100, (t.wallet_balance / 10000) * 100);
+          const lowWallet = t.wallet_balance < 1500;
+          return `
+            <tr>
+              <td><div style="font-weight:700">${t.name}</div><div class="cell-sub">${t.email}</div></td>
+              <td><span class="font-mono" style="font-size:12px">${t.vat}</span></td>
+              <td><div style="font-weight:600">${t.contact}</div><div class="cell-sub">${t.phone}</div></td>
+              <td><strong>${t.drivers_active}</strong><div class="cell-sub">attivi</div></td>
+              <td>
+                <strong>€${t.wallet_balance.toLocaleString('it-IT')}</strong>
+                ${lowWallet ? '<span class="badge badge--warning" style="margin-left:6px;font-size:10px;padding:2px 6px">basso</span>' : ''}
+                <div class="wallet-bar"><div class="fill" style="width: ${walletPct}%"></div></div>
+              </td>
+              <td><strong>${t.rides_month}</strong></td>
+              <td>
+                <div class="flex items-center gap-8">
+                  <button class="toggle-switch ${isActive ? 'on' : ''}" onclick="toggleStatus('${t.id}', this)"></button>
+                  <span style="font-size: 12px; color: ${isActive ? 'var(--shuttle-teal-dark)' : 'var(--medium-gray)'}; font-weight: 600">
+                    ${isActive ? 'Attiva' : 'In pausa'}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="btn btn--shuttle btn--sm" onclick="openTopup('${t.id}')">${aIcon('plus',{size:12})} Ricarica</button>
+                  <button class="btn btn--ghost btn--sm" onclick="openCompanyDetail('${t.id}')">Dettaglio</button>
+                </div>
+              </td>
+            </tr>`;
+        }).join('');
+    }
+    document.getElementById('search-co').addEventListener('input', renderRows);
+    renderRows();
+
+    function toggleStatus(id, btn) {
+      btn.classList.toggle('on');
+      const isOn = btn.classList.contains('on');
+      btn.nextElementSibling.textContent = isOn ? 'Attiva' : 'In pausa';
+      btn.nextElementSibling.style.color = isOn ? 'var(--shuttle-teal-dark)' : 'var(--medium-gray)';
+      showToast(`Compagnia ${id} ${isOn ? 'attivata' : 'sospesa'}`, 'info');
+    }
+
+    let topupId = null;
+    function openTopup(id) {
+      topupId = id;
+      const t = MOCK.taxiCompanies.find(x => x.id === id);
+      document.getElementById('tp-name').textContent = t.name + ' · attuale €' + t.wallet_balance.toLocaleString('it-IT');
+      document.getElementById('tp-amount').value = '';
+      openModal('modal-topup');
+    }
+    function finishTopup(method) {
+      const amount = parseFloat(document.getElementById('tp-amount').value) || 0;
+      if (amount < 100) return showToast('Importo minimo €100', 'error');
+      closeModal('modal-topup');
+      showToast(`Ricarica €${amount.toLocaleString('it-IT')} via ${method} confermata`, 'shuttle');
+    }
+
+    function openCompanyDetail(id) {
+      const t = MOCK.taxiCompanies.find(x => x.id === id);
+      if (!t) return;
+      const recentRides = MOCK.adminRides.filter(r => r.taxi_company_id === id).slice(0, 5);
+      openInfoModal({
+        title: t.name,
+        subtitle: `P.IVA ${t.vat} · ${t.status === 'active' ? 'Convenzione attiva' : 'In pausa'}`,
+        accent: 'shuttle',
+        wide: true,
+        bodyHTML: `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="card card--padded">
+              <p class="eyebrow">Referente</p>
+              <p style="font-weight:700;font-size:14px;margin-top:4px">${t.contact}</p>
+              <p class="caption mt-4">${t.email}</p>
+              <p class="caption">${t.phone}</p>
+            </div>
+            <div class="card card--padded" style="background:var(--shuttle-teal-bg);border-color:#99E9DD">
+              <p class="eyebrow" style="color:var(--shuttle-teal-dark)">Wallet operativo</p>
+              <p style="font-size:24px;font-weight:700;color:var(--shuttle-teal-dark);margin-top:4px">€${t.wallet_balance.toLocaleString('it-IT')}</p>
+              <p class="caption mt-4">${t.wallet_balance < 1500 ? '⚠ sotto soglia · ricarica consigliata' : 'in linea con la media'}</p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+            <div class="card card--padded text-center"><p style="font-size:22px;font-weight:700">${t.drivers_active}</p><p class="caption">Tassisti attivi</p></div>
+            <div class="card card--padded text-center"><p style="font-size:22px;font-weight:700">${t.rides_month}</p><p class="caption">Corse · mese</p></div>
+            <div class="card card--padded text-center"><p style="font-size:22px;font-weight:700">${Math.round((t.rides_month / Math.max(t.drivers_active, 1)) * 10) / 10}</p><p class="caption">Corse / tassista</p></div>
+          </div>
+          <div class="divider-eyebrow"><span>Ultime corse erogate</span><span class="line"></span></div>
+          ${recentRides.length ? `
+            <table class="data-table">
+              <thead><tr><th>ID</th><th>Paziente</th><th>Tratta</th><th>Quando</th><th>Stato</th></tr></thead>
+              <tbody>
+                ${recentRides.map(r => {
+                  const st = MOCK.rideStatusLabel[r.status] || MOCK.rideStatusLabel.pending;
+                  return `<tr><td><span class="font-mono" style="font-size:12px">${r.id}</span></td><td>${r.patient}</td><td>${r.from} → ${r.to}</td><td>${r.date}</td><td><span class="badge ${st.cls}"><span class="dot"></span>${st.label}</span></td></tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          ` : '<p class="caption">Nessuna corsa erogata negli ultimi 30 giorni.</p>'}
+          <p class="caption mt-12" style="font-size:11px">Dettaglio tassisti e veicoli su <a href="https://destone28.github.io/aureaviapoc/" target="_blank" rel="noopener" style="color:var(--shuttle-teal-dark);font-weight:700">console AureaVia</a>.</p>`,
+        actions: [
+          { label: 'Apri su AureaVia', kind: 'secondary', onClick: () => window.open('https://destone28.github.io/aureaviapoc/', '_blank', 'noopener') },
+          { label: 'Ricarica wallet', kind: 'shuttle', onClick: () => { openTopup(id); return false; } },
+          { label: 'Chiudi', kind: 'ghost' }
+        ]
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Accedi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,140,0,.08), transparent 55%),
+        radial-gradient(circle at 80% 90%, rgba(14,165,164,.14), transparent 55%),
+        linear-gradient(180deg, #FEFCF8, #F4F0E9);
+      padding: 24px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 60px rgba(45,45,45,.12);
+    }
+    .brand-row { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:8px; }
+    .brand-logo {
+      position: relative;
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #2D2D2D, #1a1a1a);
+      border-radius: 10px;
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-weight:700; font-size:20px;
+      letter-spacing:-0.5px;
+    }
+    .brand-logo .badge-shuttle {
+      position:absolute;
+      bottom:-5px; right:-10px;
+      background: var(--shuttle-teal);
+      color:#fff;
+      font-size:9px; font-weight:700;
+      padding:2px 5px; border-radius:5px;
+      border: 2px solid #fff;
+      line-height:1;
+      letter-spacing:0.04em;
+    }
+    .brand-text { font-size:22px; font-weight:700; letter-spacing:-0.01em; }
+    .brand-tag  { text-align:center; color: var(--medium-gray); font-size:13px; margin-bottom:28px; }
+    .title    { font-size:22px; font-weight:700; text-align:center; }
+    .subtitle { font-size:14px; color: var(--medium-gray); text-align:center; margin: 4px 0 24px; }
+    .signup-row { text-align:center; font-size:13px; color: var(--medium-gray); margin-top:16px; }
+    .signup-row a { color: var(--shuttle-teal-dark); font-weight:700; }
+    .divider-or {
+      display:flex; align-items:center; gap:12px;
+      margin: 22px 0;
+      color: var(--medium-gray); font-size:12px;
+    }
+    .divider-or::before, .divider-or::after { content:''; flex:1; height:1px; background: var(--border-soft); }
+    .spid-btn {
+      width: 100%; padding: 12px;
+      background:#fff;
+      border:1px solid var(--border-gray);
+      border-radius: var(--r-md);
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      font-weight:600;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .spid-btn:hover { background:#FAFAFA; }
+    .spid-badge {
+      background: linear-gradient(135deg, #0066CC, #002F6E);
+      color:#fff; font-size:11px; font-weight:700;
+      padding: 2px 6px; border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card slide-up">
+    <div class="brand-row">
+      <div class="brand-logo">A<span class="badge-shuttle">SHUTTLE</span></div>
+      <span class="brand-text">AureaShuttle</span>
+    </div>
+    <p class="brand-tag">Trasporto sanitario assistito · Aurea Suite</p>
+
+    <h1 class="title">Entra nel tuo account</h1>
+    <p class="subtitle">Stesse credenziali di AureaVia e AureaCare.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label class="field-label" for="email">Email</label>
+        <div class="input-container">
+          <span id="ico-mail"></span>
+          <input type="email" id="email" class="input" placeholder="nome@email.it" autocomplete="email" required>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <div class="input-container">
+          <span id="ico-lock"></span>
+          <input type="password" id="password" class="input" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <a href="#" onclick="event.preventDefault();openRecovery()"
+           style="display:block;text-align:right;font-size:13px;color:var(--shuttle-teal-dark);margin-top:6px;font-weight:600">
+          Password dimenticata?
+        </a>
+      </div>
+      <button type="submit" class="btn btn--shuttle btn--block btn--lg">Accedi</button>
+    </form>
+
+    <div class="divider-or"><span>oppure</span></div>
+    <button class="spid-btn" onclick="openSpid()">
+      <span class="spid-badge">SPID</span>
+      <span>Entra con identità digitale</span>
+    </button>
+
+    <div class="signup-row">Non hai un account? <a href="onboarding.html">Registrati come paziente</a></div>
+
+    <div class="suite-footer">
+      <a class="suite-item via" href="https://destone28.github.io/aureaviapoc/" target="_blank" rel="noopener">
+        <span class="suite-dot">V</span>AureaVia
+      </a>
+      <span class="suite-item current shuttle">
+        <span class="suite-dot">S</span>AureaShuttle
+      </span>
+      <a class="suite-item care" href="#" onclick="event.preventDefault();showToast('AureaCare: apertura simulata','info')">
+        <span class="suite-dot">C</span>AureaCare
+      </a>
+    </div>
+
+    <p class="caption text-center" style="margin-top:20px">
+      <a href="admin-login.html" style="color:var(--medium-gray);text-decoration:underline">Sei un amministratore?</a>
+    </p>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-mail').outerHTML = aIcon('mail', { size: 18 });
+    document.getElementById('ico-lock').outerHTML = aIcon('lock', { size: 18 });
+
+    // Prefill se è già loggato come paziente
+    (function prefill(){
+      const u = getAuth();
+      if (u && u.role === 'patient') { location.href = 'home.html'; }
+      else if (u && u.email) { document.getElementById('email').value = u.email; }
+    })();
+
+    function openRecovery() {
+      openInfoModal({
+        title: 'Recupera la password',
+        subtitle: 'Ti invieremo un link via email per reimpostarla.',
+        accent: 'shuttle',
+        bodyHTML: `
+          <div class="field">
+            <label class="field-label">Email registrata</label>
+            <div class="input-container"><input class="input" id="rec-email" type="email" placeholder="nome@email.it" value="${(document.getElementById('email').value || '')}"></div>
+            <p class="field-hint">Vale per tutta la suite Aurea (AureaVia, AureaShuttle, AureaCare).</p>
+          </div>
+          <p class="caption" style="background:var(--shuttle-teal-bg);border:1px solid #99E9DD;padding:10px 12px;border-radius:8px">
+            Mockup: l'email non viene realmente inviata. In produzione il link scade dopo 30 minuti.
+          </p>`,
+        actions: [
+          { label: 'Annulla', kind: 'secondary' },
+          { label: 'Invia link', kind: 'shuttle', onClick: () => {
+            const v = (document.getElementById('rec-email').value || '').trim();
+            if (!v) { showToast('Inserisci un\'email valida', 'error'); return false; }
+            showToast('Email di recupero inviata a ' + v, 'shuttle');
+          }}
+        ]
+      });
+    }
+
+    function openSpid() {
+      const providers = ['Aruba', 'Poste ID', 'InfoCert', 'Lepida', 'Namirial', 'Register.it', 'Sielte', 'Tim ID'];
+      openInfoModal({
+        title: 'Accedi con SPID',
+        subtitle: 'Identità digitale unica per la PA italiana.',
+        accent: 'shuttle',
+        bodyHTML: `
+          <p class="caption mb-12">Scegli il tuo provider SPID per continuare:</p>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+            ${providers.map(p => `<button class="btn btn--secondary btn--sm" onclick="showToast('Reindirizzamento simulato a ' + this.textContent.trim() + '…', 'info')">${p}</button>`).join('')}
+          </div>
+          <p class="caption mt-16" style="font-size:11px">Mockup demo: nessun reindirizzamento reale. In produzione si apre la pagina del provider scelto.</p>`,
+        actions: [{ label: 'Chiudi', kind: 'secondary' }]
+      });
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      if (!email) return showToast('Inserisci email e password', 'error');
+      setAuth({
+        email,
+        role: 'patient',
+        patient_id: 'PAT-00142',
+        name: 'Lucia Marchetti',
+        apps: ['aureavia', 'aureashuttle', 'aureacare']
+      });
+      showToast('Benvenuta in AureaShuttle', 'shuttle');
+      setTimeout(() => location.href = 'home.html', 600);
+    });
+  </script>
+</body>
+</html>

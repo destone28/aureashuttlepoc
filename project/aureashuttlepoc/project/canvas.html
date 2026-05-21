@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AureaShuttle · 13 schermate · Canvas review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <style>
+    body { background: #f4f1eb; color: var(--ink); }
+
+    .canvas-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.94);
+      backdrop-filter: saturate(1.4) blur(12px);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .canvas-header .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; }
+    .canvas-header .brand-logo {
+      position: relative;
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #2D2D2D, #1a1a1a);
+      border-radius: 8px;
+      color:#fff; font-weight:700; font-size:16px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .canvas-header .brand-logo .badge-shut {
+      position:absolute;
+      bottom:-3px; right:-5px;
+      background: var(--shuttle-teal);
+      color:#fff; font-size:7px; font-weight:700;
+      padding: 2px 4px;
+      border-radius: 4px;
+      border:1.5px solid #fff;
+      line-height:1;
+    }
+    .canvas-header h1 { font-size: 15px; font-weight: 600; }
+    .canvas-header .sub { color: var(--medium-gray); font-size: 12px; }
+    .canvas-header .spacer { flex: 1; }
+    .canvas-header .pill {
+      font-size:11px; font-weight:700; padding:4px 10px;
+      background: var(--light-gray); color: var(--medium-gray);
+      border-radius: 999px;
+    }
+    .canvas-header a { color: inherit; }
+
+    .canvas-content {
+      padding: 32px 32px 80px;
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    .canvas-section { margin-bottom: 48px; }
+    .canvas-section-head { display:flex; align-items:baseline; gap:16px; margin-bottom:6px; }
+    .canvas-section-head .num {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--medium-gray); font-size: 12px; font-weight:700;
+      letter-spacing: 0.08em;
+    }
+    .canvas-section-head h2 { font-size:22px; font-weight:700; }
+    .canvas-section-sub { color: var(--medium-gray); font-size: 13px; margin-bottom: 22px; max-width: 720px; }
+
+    .ab-grid { display:grid; gap: 24px; grid-auto-rows: min-content; }
+    .ab-grid--phones { grid-template-columns: repeat(auto-fit, minmax(280px, 320px)); }
+    .ab-grid--desktops { grid-template-columns: 1fr; gap: 32px; }
+
+    .ab {
+      position: relative;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+      display:flex; flex-direction: column;
+    }
+    .ab .label {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      display:flex; justify-content:space-between; align-items:center;
+      background:#fff;
+    }
+    .ab .label .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--medium-gray); font-weight: 700; letter-spacing:.04em; }
+    .ab .label .title { font-size: 13px; font-weight: 700; }
+    .ab .label .file { color: var(--medium-gray); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .ab .open-btn {
+      width: 26px; height: 26px;
+      border: none;
+      border-radius: 6px;
+      background: var(--light-gray);
+      color: var(--medium-gray);
+      display:flex; align-items:center; justify-content:center;
+      text-decoration:none; cursor:pointer;
+    }
+    .ab .open-btn:hover { background: var(--shuttle-teal-light); color: var(--shuttle-teal-dark); }
+
+    .phone-frame {
+      width: 100%;
+      aspect-ratio: 440 / 850;
+      background:#000;
+      overflow: hidden;
+      position: relative;
+    }
+    .phone-frame iframe {
+      width: 440px; height: 850px;
+      border:none; background:#fff;
+      transform-origin: top left;
+    }
+    .desktop-frame {
+      width: 100%;
+      aspect-ratio: 1440 / 900;
+      background:#1a1d24;
+      overflow: hidden;
+      position: relative;
+    }
+    .desktop-frame iframe {
+      width: 1440px; height: 900px;
+      border:none; background:#fff;
+      transform-origin: top left;
+    }
+    .desktop-bezel {
+      background:#1a1d24;
+      padding: 6px 8px;
+      display:flex; align-items:center; gap: 6px;
+    }
+    .desktop-bezel .dot { width:10px; height:10px; border-radius:50%; }
+    .desktop-bezel .dot:nth-child(1) { background:#FF5F57; }
+    .desktop-bezel .dot:nth-child(2) { background:#FEBC2E; }
+    .desktop-bezel .dot:nth-child(3) { background:#28C840; }
+    .desktop-bezel .url {
+      flex:1; text-align:center; color:#aaa;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    }
+
+    /* Tweaks */
+    .tweaks-fab {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--shuttle-teal), var(--shuttle-teal-dark));
+      color:#fff; border: none;
+      border-radius: 50%;
+      box-shadow: 0 8px 24px rgba(14,165,164,.4);
+      z-index: 500;
+      display:flex; align-items:center; justify-content:center;
+      cursor: pointer;
+    }
+    .tweaks-fab:hover { transform: translateY(-2px); }
+    .tw-panel {
+      position: fixed;
+      bottom: 86px; right: 24px;
+      width: 320px;
+      max-height: 76vh;
+      background:#fff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+      z-index: 500;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tw-panel.open { display: flex; animation: scaleIn 200ms ease-out; }
+    .tw-header { padding: 14px 18px; border-bottom: 1px solid var(--border-soft); display:flex; justify-content:space-between; align-items:center; }
+    .tw-header h3 { font-size: 14px; font-weight: 700; }
+    .tw-body { padding: 14px 18px; overflow-y: auto; }
+    .tw-section { margin-bottom: 18px; }
+    .tw-section h4 { font-size: 11px; font-weight: 700; color: var(--medium-gray); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+    .tw-options { display: grid; gap: 6px; }
+    .tw-opt {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border-soft);
+      background: #FAFAFA;
+      border-radius: 8px;
+      font-size:12px; font-weight: 600;
+      cursor: pointer;
+      transition: all .15s ease;
+      text-align: left;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .tw-opt:hover { border-color: var(--shuttle-teal); }
+    .tw-opt.active { background: var(--shuttle-teal-light); border-color: var(--shuttle-teal); color: var(--shuttle-teal-dark); }
+    .tw-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .tw-swatch {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: all .15s ease;
+    }
+    .tw-swatch.active { border-color: var(--ink); transform: scale(0.96); }
+    .tw-reset {
+      width: 100%; padding: 8px;
+      background: transparent;
+      border: 1px dashed var(--border-gray);
+      border-radius: 8px;
+      color: var(--medium-gray);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+    }
+    .tw-reset:hover { color: var(--ink); border-color: var(--ink); }
+  </style>
+</head>
+<body>
+  <header class="canvas-header">
+    <div class="brand">
+      <div class="brand-logo">A<span class="badge-shut">SHUT</span></div>
+      <div>
+        <h1>AureaShuttle · POC paziente + admin</h1>
+        <p class="sub">13 schermate · vanilla HTML/CSS/JS · canvas di review</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <span class="pill">v0.1 · Roma</span>
+    <span class="pill" style="background: var(--shuttle-teal-light); color: var(--shuttle-teal-dark)">13 / 13 schermate</span>
+    <a class="pill" href="index.html" style="background: var(--bg-warm); color: #854F0B; text-decoration: none">Apri webapp →</a>
+  </header>
+
+  <main class="canvas-content">
+
+    <!-- Paziente -->
+    <section class="canvas-section">
+      <div class="canvas-section-head"><span class="num">01 · LATO PAZIENTE</span></div>
+      <h2>Paziente · mobile-first</h2>
+      <p class="canvas-section-sub">9 schermate ottimizzate per viewport 360-440px. Wallet pacchetti corse sempre visibile, bottom nav con 4 voci, ESG personale come elemento distintivo. Handoff entrante da AureaCare via <span class="font-mono">?from=aureacare</span>.</p>
+
+      <div class="ab-grid ab-grid--phones" id="patient-grid"></div>
+    </section>
+
+    <!-- Admin -->
+    <section class="canvas-section">
+      <div class="canvas-section-head"><span class="num">02 · LATO ADMIN</span></div>
+      <h2>Admin · desktop-first</h2>
+      <p class="canvas-section-sub">4 schermate per viewport 1280-1920px. Sidebar scura 72px, top bar contestuale, KPI ESG aggregato + dual-line chart, coda approvazioni con modale di inoltro flotta AureaVia, CRUD compagnie taxi con wallet operativo. Il lato tassista (login, dettaglio corsa, profilo, recensioni) è coperto interamente da AureaVia → link esterni.</p>
+
+      <div class="ab-grid ab-grid--desktops" id="admin-grid"></div>
+    </section>
+
+    <!-- Note design -->
+    <section class="canvas-section">
+      <div class="canvas-section-head"><span class="num">03 · NOTE DESIGN SYSTEM</span></div>
+      <h2>Token &amp; pattern condivisi con AureaCare</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:14px">
+        <div class="card card--padded-lg">
+          <p class="eyebrow mb-8">Eredità AureaVia + AureaCare</p>
+          <p style="font-size:13px;line-height:1.6">Open Sans 400/600/700 · radius 8/12/16 · shadow soft · toast slide-in · confirm modal · status badge pill · suite marker arancione <span class="font-mono">#FF8C00</span>.</p>
+        </div>
+        <div class="card card--padded-lg">
+          <p class="eyebrow mb-8">Accent AureaShuttle</p>
+          <p style="font-size:13px;line-height:1.6">Teal <span class="font-mono" style="color: var(--shuttle-teal-dark)">#0EA5A4</span> (trasporto sanitario) + variants <span class="font-mono">#CCFBF1</span> · <span class="font-mono">#0F766E</span>. Stessa logica strutturale del care-blue AureaCare.</p>
+        </div>
+        <div class="card card--padded-lg">
+          <p class="eyebrow mb-8">Pattern nuovi</p>
+          <p style="font-size:13px;line-height:1.6">Wallet ring per <strong>corse</strong> (non prestazioni), ESG card a 3 varianti, handoff <strong>entrante</strong> da AureaCare, badge lifecycle estesi (Inviata taxi · Accettata · In corso).</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Tweaks panel -->
+  <button class="tweaks-fab" id="tweaks-fab" aria-label="Apri Tweaks"><span id="ico-tw"></span></button>
+  <div class="tw-panel" id="tw-panel">
+    <div class="tw-header">
+      <h3>Tweaks AureaShuttle</h3>
+      <button class="modal-close" onclick="toggleTweaks()" style="width:28px;height:28px"><span id="ico-tw-x"></span></button>
+    </div>
+    <div class="tw-body">
+
+      <div class="tw-section">
+        <h4>Shuttle accent · hue</h4>
+        <div class="tw-swatches" id="tw-accents">
+          <button class="tw-swatch active" style="background:#0EA5A4" data-accent="0EA5A4" data-dark="0F766E" data-light="CCFBF1" title="Teal (default)"></button>
+          <button class="tw-swatch" style="background:#0F766E" data-accent="0F766E" data-dark="115E59" data-light="CCFBF1" title="Teal profondo"></button>
+          <button class="tw-swatch" style="background:#0EA371" data-accent="0EA371" data-dark="0A6E4F" data-light="DCFAE6" title="Verde sanitario"></button>
+          <button class="tw-swatch" style="background:#0891B2" data-accent="0891B2" data-dark="0E7490" data-light="CFFAFE" title="Cyan"></button>
+        </div>
+        <p class="caption mt-8" style="font-size: 11px">Cambia il teal su tutte le 13 schermate. Il marker arancione di suite resta.</p>
+      </div>
+
+      <div class="tw-section">
+        <h4>Wallet ring</h4>
+        <div class="tw-options">
+          <button class="tw-opt active" data-tweak="wallet" data-value="segmented">Segmentato · 1 tacca per corsa</button>
+          <button class="tw-opt" data-tweak="wallet" data-value="single">Singolo ring continuo</button>
+          <button class="tw-opt" data-tweak="wallet" data-value="dual">Doppio ring (€ + corse)</button>
+        </div>
+      </div>
+
+      <div class="tw-section">
+        <h4>App switcher</h4>
+        <div class="tw-options">
+          <button class="tw-opt active" data-tweak="switcher" data-value="dropdown">Dropdown compatto</button>
+          <button class="tw-opt" data-tweak="switcher" data-value="modal">Modale full-screen</button>
+          <button class="tw-opt" data-tweak="switcher" data-value="sheet">Bottom sheet</button>
+        </div>
+      </div>
+
+      <div class="tw-section">
+        <h4>ESG card · home + profilo</h4>
+        <div class="tw-options">
+          <button class="tw-opt active" data-tweak="esg" data-value="compact">Compatta (3 mini-KPI)</button>
+          <button class="tw-opt" data-tweak="esg" data-value="expanded">Espansa (con narrazione)</button>
+          <button class="tw-opt" data-tweak="esg" data-value="hidden">Nascosta in home</button>
+        </div>
+      </div>
+
+      <div class="tw-section">
+        <h4>Handoff da AureaCare (book-ride)</h4>
+        <div class="tw-options">
+          <button class="tw-opt active" data-tweak="handoff" data-value="pre-flagged">Pre-flagged · riepilogo dati</button>
+          <button class="tw-opt" data-tweak="handoff" data-value="visual">Visual · 3 step</button>
+          <button class="tw-opt" data-tweak="handoff" data-value="sober">Sober · banner minimale</button>
+        </div>
+        <p class="caption mt-8" style="font-size: 11px">Per testare: apri <span class="font-mono">book-ride.html?from=aureacare&amp;booking_id=AC-1234&amp;dest=Policlinico+Gemelli&amp;date=2026-06-15&amp;time=14:30&amp;service=Visita+cardiologica</span></p>
+      </div>
+
+      <button class="tw-reset" onclick="resetTweaks()">Ripristina default</button>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="js/icons.js"></script>
+  <script>
+    document.getElementById('ico-tw').outerHTML = aIcon('sliders', { size: 20 });
+    document.getElementById('ico-tw-x').outerHTML = aIcon('x', { size: 14 });
+
+    const patientScreens = [
+      { n: '01', file: 'index.html',         title: 'Login unificato',     sub: 'index.html' },
+      { n: '02', file: 'onboarding.html',    title: 'Onboarding wizard',   sub: 'onboarding.html' },
+      { n: '03', file: 'home.html',          title: 'Home · wallet + ESG', sub: 'home.html' },
+      { n: '04', file: 'book-ride.html?from=aureacare&booking_id=AC-1234&dest=Policlinico+Gemelli&date=2026-06-15&time=14:30&service=Visita+cardiologica',
+                                              title: 'Nuova corsa · handoff', sub: 'book-ride.html' },
+      { n: '05', file: 'ride-summary.html?date=2026-05-24&time=14:30&from=Via+Tuscolana+124&to=Policlinico+Gemelli&ar=1', title: 'Riepilogo corsa', sub: 'ride-summary.html' },
+      { n: '06', file: 'wallet.html',        title: 'Wallet + ricarica',   sub: 'wallet.html' },
+      { n: '07', file: 'my-rides.html',      title: 'Le mie corse',        sub: 'my-rides.html' },
+      { n: '08', file: 'caregiver.html',     title: 'Caregiver &amp; auto',sub: 'caregiver.html' },
+      { n: '09', file: 'profile.html',       title: 'Profilo + report ESG',sub: 'profile.html' }
+    ];
+    const adminScreens = [
+      { n: '10', file: 'admin-login.html',          title: 'Admin login',            sub: 'admin-login.html' },
+      { n: '11', file: 'admin-dashboard.html',      title: 'Dashboard · KPI + ESG',  sub: 'admin-dashboard.html' },
+      { n: '12', file: 'admin-approvals.html',      title: 'Coda approvazioni',      sub: 'admin-approvals.html' },
+      { n: '13', file: 'admin-taxi-companies.html', title: 'Compagnie taxi',         sub: 'admin-taxi-companies.html' }
+    ];
+
+    function abPhone(s) {
+      return `
+        <div class="ab">
+          <div class="label">
+            <div>
+              <div class="num">${s.n}</div>
+              <div class="title">${s.title}</div>
+              <div class="file">${s.sub}</div>
+            </div>
+            <a class="open-btn" href="${s.file}" target="_blank" title="Apri in nuova scheda">${aIcon('arrow-right', { size: 14 })}</a>
+          </div>
+          <div class="phone-frame">
+            <iframe src="${s.file}" data-scale="phone" loading="lazy"></iframe>
+          </div>
+        </div>`;
+    }
+    function abDesktop(s) {
+      return `
+        <div class="ab">
+          <div class="label">
+            <div>
+              <div class="num">${s.n}</div>
+              <div class="title">${s.title}</div>
+              <div class="file">${s.sub}</div>
+            </div>
+            <a class="open-btn" href="${s.file}" target="_blank" title="Apri in nuova scheda">${aIcon('arrow-right', { size: 14 })}</a>
+          </div>
+          <div class="desktop-bezel">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="url">aureashuttle.local/${s.sub}</span>
+          </div>
+          <div class="desktop-frame">
+            <iframe src="${s.file}" data-scale="desktop" loading="lazy"></iframe>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById('patient-grid').innerHTML = patientScreens.map(abPhone).join('');
+    document.getElementById('admin-grid').innerHTML   = adminScreens.map(abDesktop).join('');
+
+    // Scale iframes
+    function scaleIframes() {
+      document.querySelectorAll('iframe[data-scale="phone"]').forEach(f => {
+        const w = f.parentElement.clientWidth;
+        f.style.transform = `scale(${w / 440})`;
+      });
+      document.querySelectorAll('iframe[data-scale="desktop"]').forEach(f => {
+        const w = f.parentElement.clientWidth;
+        f.style.transform = `scale(${w / 1440})`;
+      });
+    }
+    window.addEventListener('load', () => setTimeout(scaleIframes, 100));
+    window.addEventListener('resize', scaleIframes);
+    setTimeout(scaleIframes, 600);
+
+    // ---------- Tweaks ----------
+    function toggleTweaks() { document.getElementById('tw-panel').classList.toggle('open'); }
+    document.getElementById('tweaks-fab').addEventListener('click', toggleTweaks);
+
+    // Accent hue
+    document.querySelectorAll('#tw-accents .tw-swatch').forEach(sw => {
+      sw.addEventListener('click', () => {
+        document.querySelectorAll('#tw-accents .tw-swatch').forEach(x => x.classList.remove('active'));
+        sw.classList.add('active');
+        const a = sw.dataset.accent, d = sw.dataset.dark, l = sw.dataset.light;
+        localStorage.setItem('aureashuttle_accent', a);
+        localStorage.setItem('aureashuttle_accent_dark', d);
+        localStorage.setItem('aureashuttle_accent_light', l);
+        applyAccentToAllFrames(a, d, l);
+      });
+    });
+
+    function applyAccentToAllFrames(accent, dark, light) {
+      const css = `
+        :root {
+          --shuttle-teal: #${accent} !important;
+          --shuttle-teal-dark: #${dark} !important;
+          --shuttle-teal-light: #${light} !important;
+        }`;
+      document.querySelectorAll('iframe').forEach(f => {
+        try {
+          let style = f.contentDocument.getElementById('tw-accent-style');
+          if (!style) {
+            style = f.contentDocument.createElement('style');
+            style.id = 'tw-accent-style';
+            f.contentDocument.head.appendChild(style);
+          }
+          style.textContent = css;
+        } catch (e) {}
+      });
+      let s = document.getElementById('tw-accent-style');
+      if (!s) { s = document.createElement('style'); s.id = 'tw-accent-style'; document.head.appendChild(s); }
+      s.textContent = css;
+    }
+
+    // Wallet / switcher / esg / handoff
+    document.querySelectorAll('.tw-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tweak = btn.dataset.tweak;
+        const value = btn.dataset.value;
+        document.querySelectorAll(`.tw-opt[data-tweak="${tweak}"]`).forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        if (tweak === 'wallet')   localStorage.setItem('aureashuttle_wallet_variant', value);
+        if (tweak === 'switcher') localStorage.setItem('aureashuttle_app_switcher_style', value);
+        if (tweak === 'esg')      localStorage.setItem('aureashuttle_esg_display', value);
+        if (tweak === 'handoff')  localStorage.setItem('aureashuttle_handoff_mode', value);
+
+        const targets = {
+          wallet:   ['home.html','wallet.html'],
+          esg:      ['home.html','profile.html'],
+          handoff:  ['book-ride.html','home.html'],
+          switcher: []
+        }[tweak] || [];
+        if (targets.length) {
+          document.querySelectorAll('iframe').forEach(f => {
+            const src = (f.getAttribute('src') || '').split('?')[0];
+            if (targets.includes(src)) {
+              const original = f.getAttribute('src');
+              f.setAttribute('src', original);
+            }
+          });
+          showToast('Variante aggiornata', 'shuttle');
+        } else {
+          showToast('Variante salvata · app switcher', 'shuttle');
+        }
+      });
+    });
+
+    function resetTweaks() {
+      ['aureashuttle_accent','aureashuttle_accent_dark','aureashuttle_accent_light',
+       'aureashuttle_wallet_variant','aureashuttle_app_switcher_style',
+       'aureashuttle_esg_display','aureashuttle_handoff_mode'].forEach(k => localStorage.removeItem(k));
+      location.reload();
+    }
+
+    function showToast(msg, type) {
+      const cn = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast toast--' + (type || 'info');
+      t.innerHTML = `<span class="toast-message">${msg}</span>`;
+      cn.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+
+    // Re-apply tweaks once iframes load
+    document.querySelectorAll('iframe').forEach(f => {
+      f.addEventListener('load', () => {
+        const a = localStorage.getItem('aureashuttle_accent');
+        const d = localStorage.getItem('aureashuttle_accent_dark');
+        const l = localStorage.getItem('aureashuttle_accent_light');
+        if (a && d && l) applyAccentToAllFrames(a, d, l);
+      });
+    });
+
+    // Restore UI state
+    (function restoreUI(){
+      const map = {
+        wallet:   localStorage.getItem('aureashuttle_wallet_variant'),
+        switcher: localStorage.getItem('aureashuttle_app_switcher_style'),
+        esg:      localStorage.getItem('aureashuttle_esg_display'),
+        handoff:  localStorage.getItem('aureashuttle_handoff_mode')
+      };
+      Object.entries(map).forEach(([tweak, value]) => {
+        if (!value) return;
+        document.querySelectorAll(`.tw-opt[data-tweak="${tweak}"]`).forEach(x => x.classList.remove('active'));
+        const btn = document.querySelector(`.tw-opt[data-tweak="${tweak}"][data-value="${value}"]`);
+        if (btn) btn.classList.add('active');
+      });
+      const a = localStorage.getItem('aureashuttle_accent');
+      if (a) {
+        document.querySelectorAll('#tw-accents .tw-swatch').forEach(x => x.classList.remove('active'));
+        const sw = document.querySelector(`#tw-accents .tw-swatch[data-accent="${a}"]`);
+        if (sw) sw.classList.add('active');
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Riepilogo corsa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    .ride-map {
+      position: relative;
+      height: 160px;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      margin-bottom: 14px;
+      background:#f0f4f5;
+    }
+    .ride-map .leaflet-container { height: 100%; width: 100%; font-family: 'Open Sans', sans-serif; }
+    .ride-map .map-watermark {
+      position: absolute; bottom: 6px; left: 12px; z-index: 400;
+      background: rgba(255,255,255,.88); padding: 3px 8px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--shuttle-teal-dark); letter-spacing: 0.04em; pointer-events: none;
+    }
+    .recap-block {
+      background: #fff;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-md);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .recap-block h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--medium-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .kv-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-soft);
+      font-size: 14px;
+    }
+    .kv-row:last-child { border-bottom: none; }
+    .kv-row .k { color: var(--medium-gray); }
+    .kv-row .v { font-weight: 700; text-align: right; max-width: 65%; }
+  </style>
+</head>
+<body>
+  <div class="patient-app">
+    <header class="patient-sub-header">
+      <a href="javascript:history.back()" class="back-btn" aria-label="Indietro"><span id="ico-back"></span></a>
+      <div class="page-title">Riepilogo</div>
+      <div style="width:36px"></div>
+    </header>
+
+    <div class="patient-content">
+      <h2 class="h2 mb-4">Conferma la corsa</h2>
+      <p class="caption mb-16">Verrà inviata in approvazione all'admin AureaShuttle.</p>
+
+      <!-- Mini-mappa OSM della tratta confermata -->
+      <div class="ride-map" id="ride-map" aria-label="Mappa tratta">
+        <div class="map-watermark">// OPENSTREETMAP · TRATTA</div>
+      </div>
+
+      <!-- Stato iniziale badge -->
+      <div class="card card--padded mb-16" style="background: var(--shuttle-teal-bg); border-color: #99E9DD">
+        <div class="flex items-center gap-12">
+          <div style="width:36px;height:36px;border-radius:50%;background:#fff;color:var(--shuttle-teal-dark);display:flex;align-items:center;justify-content:center">
+            <span id="ico-state"></span>
+          </div>
+          <div style="flex:1">
+            <p style="font-size:13px;color:var(--shuttle-teal-dark);font-weight:600">Stato iniziale</p>
+            <p style="font-weight:700">Richiesta ricevuta — pronta per essere inviata</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recap corsa -->
+      <div class="recap-block">
+        <h3>Dettagli corsa</h3>
+        <div class="kv-row"><span class="k">Da</span><span class="v" id="kv-from">Via Tuscolana 124, Roma</span></div>
+        <div class="kv-row"><span class="k">A</span><span class="v" id="kv-to">Policlinico Gemelli</span></div>
+        <div class="kv-row"><span class="k">Quando</span><span class="v" id="kv-when">24 mag 2026 · 14:30</span></div>
+        <div class="kv-row"><span class="k">Tipologia</span><span class="v" id="kv-ar">Andata + ritorno</span></div>
+        <div class="kv-row" id="kv-care-row" style="display:none"><span class="k">Visita collegata</span><span class="v font-mono" style="font-size:12px" id="kv-care"></span></div>
+      </div>
+
+      <!-- Note al caregiver -->
+      <div class="recap-block" id="note-block" style="display:none">
+        <h3>Note al tassista</h3>
+        <p id="note-text" style="font-size:13px;color:var(--ink);line-height:1.5"></p>
+      </div>
+
+      <!-- Caregiver auto-popolato -->
+      <div class="recap-block">
+        <h3>Riferimenti caregiver</h3>
+        <div class="kv-row"><span class="k">Caregiver</span><span class="v" id="kv-cg">Marco Marchetti · Figlio</span></div>
+        <div class="kv-row"><span class="k">Contatto</span><span class="v">+39 348 220 4471</span></div>
+        <div class="kv-row"><span class="k">Note default</span><span class="v" style="font-weight:400;font-size:12px;color:var(--medium-gray)">Avvisare in caso di ritardo &gt;15min</span></div>
+      </div>
+
+      <!-- Recap costo -->
+      <div class="recap-block" style="background: var(--shuttle-teal-bg); border-color: #99E9DD;">
+        <h3 style="color: var(--shuttle-teal-dark)">Pagamento · scala dal wallet</h3>
+        <div class="kv-row"><span class="k">Corsa netta</span><span class="v">€80,00</span></div>
+        <div class="kv-row"><span class="k">Diritti fissi andata</span><span class="v">€11,00</span></div>
+        <div class="kv-row" id="kv-back"><span class="k">Diritti fissi ritorno</span><span class="v">€11,00</span></div>
+        <div class="kv-row"><span class="k" style="color:var(--ink);font-weight:700">Totale corsa</span><span class="v" style="color: var(--shuttle-teal-dark); font-size: 18px" id="kv-total">€102,00</span></div>
+        <div class="kv-row"><span class="k">Wallet attuale</span><span class="v">12 corse residue (€1.224)</span></div>
+        <div class="kv-row"><span class="k" style="color:var(--ink);font-weight:700">Dopo la conferma</span><span class="v" style="color: var(--shuttle-teal-dark)" id="kv-after">11 corse residue (€1.122)</span></div>
+      </div>
+
+      <!-- CTA -->
+      <button class="btn btn--shuttle btn--block btn--lg mt-20" onclick="confirmRide()">Conferma prenotazione</button>
+      <button class="btn btn--ghost btn--block mt-8" onclick="history.back()">Modifica</button>
+
+      <p class="caption text-center mt-16">Tempi medi di approvazione: <strong>2-4 ore lavorative</strong>. Riceverai una notifica.</p>
+    </div>
+
+    <nav class="bottom-nav">
+      <a class="nav-item" href="home.html"><span id="nv-home"></span>Home</a>
+      <a class="nav-item active" href="my-rides.html"><span id="nv-rides"></span>Corse</a>
+      <a class="nav-item" href="wallet.html"><span id="nv-wallet"></span>Wallet</a>
+      <a class="nav-item" href="profile.html"><span id="nv-profile"></span>Profilo</a>
+    </nav>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-back').outerHTML  = aIcon('arrow-left', { size: 18 });
+    document.getElementById('ico-state').outerHTML = aIcon('truck', { size: 18 });
+    document.getElementById('nv-home').outerHTML   = aIcon('home',   { size: 22 });
+    document.getElementById('nv-rides').outerHTML  = aIcon('truck',  { size: 22 });
+    document.getElementById('nv-wallet').outerHTML = aIcon('wallet', { size: 22 });
+    document.getElementById('nv-profile').outerHTML= aIcon('user',   { size: 22 });
+
+    // Read query params
+    const p = new URLSearchParams(location.search);
+    const data = {
+      date:  p.get('date')  || '2026-05-24',
+      time:  p.get('time')  || '14:30',
+      from:  p.get('from')  || 'Via Tuscolana 124, Roma',
+      to:    p.get('to')    || 'Policlinico Gemelli',
+      ar:    p.get('ar') !== '0',
+      note:  p.get('note')  || '',
+      careRef: p.get('care_ref') || ''
+    };
+
+    // Format date IT
+    function fmt(d) {
+      try {
+        const dt = new Date(d);
+        return dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+      } catch(e) { return d; }
+    }
+
+    document.getElementById('kv-from').textContent = data.from;
+    document.getElementById('kv-to').textContent   = data.to;
+    document.getElementById('kv-when').textContent = `${fmt(data.date)} · ${data.time}`;
+    document.getElementById('kv-ar').textContent   = data.ar ? 'Andata + ritorno' : 'Solo andata';
+    if (data.note) {
+      document.getElementById('note-block').style.display = 'block';
+      document.getElementById('note-text').textContent = data.note;
+    }
+    if (data.careRef) {
+      document.getElementById('kv-care-row').style.display = 'flex';
+      document.getElementById('kv-care').textContent = data.careRef;
+    }
+
+    // Mini-mappa OSM tratta
+    aureaMap.renderRideMap(document.getElementById('ride-map'), {
+      fromText: data.from,
+      toText: data.to,
+      interactive: false,
+      zoomControl: false
+    });
+
+    // Pricing
+    document.getElementById('kv-back').style.display = data.ar ? 'flex' : 'none';
+    const total = data.ar ? 102 : 91;
+    document.getElementById('kv-total').textContent = `€${total.toFixed(2).replace('.', ',')}`;
+    const w = MOCK.wallet;
+    const after = w.remaining - 1;
+    document.getElementById('kv-after').textContent = `${after} corse residue (€${(after*102).toLocaleString('it-IT')})`;
+
+    function confirmRide() {
+      showConfirmDialog(
+        'Inviare la richiesta?',
+        'La corsa verrà inoltrata all\'admin AureaShuttle per approvazione. Verrà addebitata <strong>1 corsa</strong> dal tuo wallet solo dopo approvazione.',
+        () => {
+          showToast('Richiesta inviata · in approvazione', 'shuttle');
+          // Salva localmente (per simulazione coerente)
+          try {
+            const newRide = {
+              id: 'RIDE-AS-' + Math.floor(Math.random() * 9000 + 1000),
+              date: data.date,
+              time: data.time,
+              from: data.from,
+              to: data.to,
+              round_trip: data.ar,
+              cost: total,
+              status: 'pending',
+              submitted: new Date().toLocaleString('it-IT'),
+              care_ref: data.careRef
+            };
+            const arr = JSON.parse(localStorage.getItem('aureashuttle_pending_rides') || '[]');
+            arr.unshift(newRide);
+            localStorage.setItem('aureashuttle_pending_rides', JSON.stringify(arr.slice(0, 10)));
+          } catch(e) {}
+          setTimeout(() => location.href = 'my-rides.html', 800);
+        },
+        { confirmLabel: 'Sì, invia' }
+      );
+    }
+  </script>
+</body>
+</html>

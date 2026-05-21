@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+</head>
+<body>
+  <div class="patient-app">
+    <header class="patient-header">
+      <div class="brand">
+        <div class="brand-logo">A<span class="brand-badge">SHUT</span></div>
+        <span>AureaShuttle</span>
+      </div>
+      <div class="app-switcher-wrap">
+        <button class="icon-btn" data-app-switcher aria-label="App suite"><span id="ico-grid"></span></button>
+      </div>
+      <button class="icon-btn" aria-label="Notifiche" onclick="openNotifications()">
+        <span id="ico-bell"></span>
+        <span class="badge-dot"></span>
+      </button>
+    </header>
+
+    <div class="patient-content">
+      <!-- Greeting -->
+      <div class="mb-16">
+        <p class="caption">Ciao,</p>
+        <h1 class="h1">Lucia</h1>
+      </div>
+
+      <!-- Banner handoff da AureaCare (visibile solo se ?from=aureacare) -->
+      <div id="handoff-banner" style="display:none"></div>
+
+      <!-- Wallet hero -->
+      <div class="card card--lg" style="padding:22px; background: linear-gradient(160deg, #FFFFFF 0%, var(--shuttle-teal-bg) 100%); border-color: #DCEFEB;">
+        <div class="flex justify-between items-start mb-12">
+          <div>
+            <p class="eyebrow" style="color: var(--shuttle-teal-dark)">Wallet AureaShuttle</p>
+            <p class="caption mt-4">Pacchetto Continuità · 20 corse</p>
+          </div>
+          <a href="wallet.html" class="link" style="color: var(--shuttle-teal-dark); font-weight:700; font-size:13px">Dettagli &rarr;</a>
+        </div>
+        <div class="flex items-center gap-16">
+          <div id="wallet-ring-mini"></div>
+          <div style="flex:1">
+            <p style="font-size:28px;font-weight:700;line-height:1"><span id="rides-left">12</span><span style="font-size:14px;color:var(--medium-gray);font-weight:400"> / 20</span></p>
+            <p class="caption mt-4">corse residue</p>
+            <p style="font-size:13px; margin-top:10px; color: var(--shuttle-teal-dark); font-weight: 600">Equivalenti a ~€<span id="eur-left">1.224</span></p>
+            <p class="caption">€102 per ogni corsa A/R</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prossima corsa -->
+      <div id="next-ride-zone"></div>
+
+      <!-- CTA prenota -->
+      <a href="book-ride.html" class="btn btn--shuttle btn--block btn--lg mt-20" style="padding: 18px">
+        <span id="ico-plus"></span>
+        Prenota nuova corsa
+      </a>
+
+      <!-- Quick actions -->
+      <div class="quick-grid mt-16">
+        <a href="my-rides.html" class="quick-card">
+          <span id="ico-q1"></span>
+          <div class="quick-label">Le mie corse</div>
+        </a>
+        <a href="caregiver.html" class="quick-card">
+          <span id="ico-q2"></span>
+          <div class="quick-label">Caregiver &amp; auto</div>
+        </a>
+        <a href="wallet.html" class="quick-card">
+          <span id="ico-q3"></span>
+          <div class="quick-label">Ricarica wallet</div>
+        </a>
+      </div>
+
+      <!-- Banner ESG personale -->
+      <div class="divider-eyebrow"><span>Il tuo impatto Q2</span><span class="line"></span></div>
+      <div class="esg-card" id="esg-card">
+        <div class="esg-head">
+          <div class="leaf"><span id="ico-leaf"></span></div>
+          <div style="flex:1">
+            <p class="title">6 cure portate a termine</p>
+            <p class="sub">grazie all'accesso facilitato al trasporto sanitario</p>
+          </div>
+        </div>
+        <div class="esg-row">
+          <div class="cell">
+            <p class="num">8</p>
+            <p class="lbl">GIORNATE CAREGIVER</p>
+          </div>
+          <div class="cell">
+            <p class="num">142</p>
+            <p class="lbl">KG CO₂ EVITATA</p>
+          </div>
+          <div class="cell">
+            <p class="num">3.0×</p>
+            <p class="lbl">SROI SOCIALE</p>
+          </div>
+        </div>
+        <p class="esg-narrative">
+          Tuo caregiver ha risparmiato <strong>8 giornate lavorative</strong> (~€1.440 di valore) e hai evitato circa <strong>142kg di CO₂</strong> non usando l'auto privata. Dettaglio in <a href="profile.html" style="color: var(--shuttle-teal-dark); font-weight: 700; text-decoration: underline">Profilo</a>.
+        </p>
+      </div>
+
+      <!-- Storico breve -->
+      <div class="divider-eyebrow mt-20"><span>Corse recenti</span><span class="line"></span></div>
+      <div id="recent-rides"></div>
+      <a href="my-rides.html" class="btn btn--ghost btn--block btn--sm mt-4" style="color:var(--shuttle-teal-dark)">
+        Vedi tutte le corse
+        <span id="ico-arrow-r"></span>
+      </a>
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <a class="nav-item active" href="home.html"><span id="nv-home"></span>Home</a>
+      <a class="nav-item" href="my-rides.html"><span id="nv-rides"></span>Corse</a>
+      <a class="nav-item" href="wallet.html"><span id="nv-wallet"></span>Wallet</a>
+      <a class="nav-item" href="profile.html"><span id="nv-profile"></span>Profilo</a>
+    </nav>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    // Icons
+    document.getElementById('ico-grid').outerHTML  = aIcon('grid', { size: 20 });
+    document.getElementById('ico-bell').outerHTML  = aIcon('bell', { size: 20 });
+    document.getElementById('ico-plus').outerHTML  = aIcon('plus', { size: 20 });
+    document.getElementById('ico-leaf').outerHTML  = aIcon('leaf', { size: 22 });
+    document.getElementById('ico-arrow-r').outerHTML = aIcon('arrow-right', { size: 16 });
+    document.getElementById('ico-q1').outerHTML = aIcon('calendar', { size: 22 });
+    document.getElementById('ico-q2').outerHTML = aIcon('users', { size: 22 });
+    document.getElementById('ico-q3').outerHTML = aIcon('plus', { size: 22 });
+    document.getElementById('nv-home').outerHTML   = aIcon('home',   { size: 22 });
+    document.getElementById('nv-rides').outerHTML  = aIcon('truck',  { size: 22 });
+    document.getElementById('nv-wallet').outerHTML = aIcon('wallet', { size: 22 });
+    document.getElementById('nv-profile').outerHTML= aIcon('user',   { size: 22 });
+
+    // Wallet ring
+    const w = MOCK.wallet;
+    document.getElementById('rides-left').textContent = w.remaining;
+    document.getElementById('eur-left').textContent = (w.remaining * 102).toLocaleString('it-IT');
+    renderWalletRing(document.getElementById('wallet-ring-mini'), {
+      total: w.total_rides, used: w.used_rides, credit: w.remaining * 102, size: 100, creditMax: 2040,
+      packageLabel: w.package_label
+    });
+    document.querySelectorAll('#wallet-ring-mini .ring-center').forEach(c => c.style.display = 'none');
+
+    // ESG card variant
+    const esgMode = localStorage.getItem('aureashuttle_esg_display') || 'compact';
+    const esgEl = document.getElementById('esg-card');
+    esgEl.classList.add('esg--' + esgMode);
+
+    // Handoff banner da AureaCare
+    const handoff = readCareHandoff();
+    if (handoff) {
+      const zone = document.getElementById('handoff-banner');
+      zone.style.display = 'block';
+      zone.innerHTML = `
+        <div class="handoff-care mb-16">
+          <div class="handoff-icon">${aIcon('heart', { size: 20 })}</div>
+          <div style="flex:1">
+            <div class="handoff-title">Stai prenotando il trasporto per la visita su AureaCare</div>
+            <p class="handoff-sub">Hai una visita prenotata: <strong>${handoff.service || 'Prestazione sanitaria'}</strong>${handoff.date ? ' del ' + handoff.date : ''}. Conferma la corsa: i dati sono già pronti.</p>
+            <a class="btn btn--shuttle btn--sm mt-12" href="book-ride.html${location.search}" style="display:inline-flex">Continua con la prenotazione corsa &rarr;</a>
+          </div>
+        </div>`;
+    }
+
+    // Next ride (prossima corsa pending/approved/dispatched/accepted/in_progress)
+    const upcomingStates = ['pending','approved','dispatched','accepted','in_progress'];
+    const next = MOCK.rides.find(r => upcomingStates.includes(r.status));
+    if (next) {
+      const st = MOCK.rideStatusLabel[next.status];
+      const nrz = document.getElementById('next-ride-zone');
+      nrz.innerHTML = `
+        <div class="divider-eyebrow"><span>Prossima corsa</span><span class="line"></span></div>
+        <a href="my-rides.html#${next.id}" class="card card--padded card--lift" style="display:block;text-decoration:none;color:inherit">
+          <div class="flex items-start gap-12">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--shuttle-teal-light);color:var(--shuttle-teal-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${aIcon('truck', { size: 24 })}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div class="flex items-center gap-8 mb-4">
+                <span class="badge ${st.cls}"><span class="dot"></span>${st.label}</span>
+                ${next.round_trip ? '<span class="caption" style="font-size:11px">A/R</span>' : '<span class="caption" style="font-size:11px">solo andata</span>'}
+              </div>
+              <p style="font-weight:700;font-size:15px">${next.to_name}</p>
+              <p class="caption mt-4">${next.date} · ${next.time}</p>
+              <p class="caption">da ${next.from_addr}</p>
+              ${next.linked_care_booking ? `<p class="caption mt-4" style="color:var(--care-blue-dark)">${aIcon('heart',{size:12})} Collegata a visita su AureaCare</p>` : ''}
+            </div>
+            <div class="text-right">
+              <p style="font-size:15px;font-weight:700">€${next.cost}</p>
+              <p class="caption">wallet</p>
+            </div>
+          </div>
+          ${next.status === 'in_progress' && next.driver ? `
+            <div class="driver-card mt-12">
+              <div class="avatar">${next.driver.name.split(' ').map(w => w[0]).join('').slice(0,2)}</div>
+              <div class="body">
+                <p class="name">${next.driver.name}</p>
+                <p class="meta">${next.driver.car} · <span class="font-mono">${next.driver.plate}</span></p>
+              </div>
+              <a class="btn btn--ghost btn--sm" href="https://destone28.github.io/aureaviapoc/ride-detail.html" target="_blank" rel="noopener" style="color: var(--shuttle-teal-dark);" onclick="event.stopPropagation()">Apri ${aIcon('external',{size:14})}</a>
+            </div>` : ''}
+        </a>`;
+    }
+
+    // Notifiche · derivate dalle corse del paziente
+    function openNotifications() {
+      const items = [
+        { ico: 'check-circle', accent: 'shuttle', title: 'Corsa approvata',  body: 'La tua corsa di domani per <strong>Policlinico Gemelli</strong> è stata approvata. La compagnia è <strong>Radiotaxi 3570</strong>.', when: '2 ore fa', href: 'my-rides.html#RIDE-AS-1024' },
+        { ico: 'truck',        accent: 'shuttle', title: 'Tassista assegnato', body: 'La corsa <span class="font-mono">RIDE-AS-1021</span> è in corso · Antonio V. (EJ 562 RS).', when: '4 ore fa', href: 'my-rides.html#RIDE-AS-1021' },
+        { ico: 'info',         accent: 'orange',  title: 'Una corsa in approvazione', body: 'La richiesta per <strong>CDC Casaccia</strong> del 27 maggio è in attesa di approvazione admin.', when: 'ieri', href: 'my-rides.html#RIDE-AS-1023' },
+        { ico: 'wallet',       accent: 'shuttle', title: 'Wallet ricaricato', body: 'Pacchetto Continuità (20 corse) · €2.040 via Stripe. Riferimento <span class="font-mono">TX-AS-9241</span>.', when: '19 mag', href: 'wallet.html' },
+        { ico: 'heart',        accent: 'care',    title: 'Visita AureaCare collegata', body: 'La visita cardiologica del 24 maggio è stata collegata alla tua corsa. Trasporto pronto.', when: '19 mag', href: 'my-rides.html#RIDE-AS-1024' }
+      ];
+      const body = items.map(n => `
+        <a href="${n.href}" class="list-row" style="text-decoration:none;color:inherit">
+          <div class="row-icon ${n.accent === 'orange' ? 'warm' : n.accent === 'care' ? 'success' : ''}">${aIcon(n.ico, { size: 18 })}</div>
+          <div class="row-body">
+            <div class="row-title">${n.title}</div>
+            <div class="row-meta">${n.body}</div>
+            <div class="row-meta caption" style="margin-top:4px">${n.when}</div>
+          </div>
+          <span style="color:var(--medium-gray)">${aIcon('chevron-right', { size: 16 })}</span>
+        </a>`).join('');
+      openInfoModal({
+        title: 'Notifiche',
+        subtitle: `${items.length} aggiornamenti recenti`,
+        accent: 'shuttle',
+        bodyHTML: body + '<p class="caption text-center mt-12" style="font-size:11px">Mockup demo: notifiche derivate dalle corse correnti.</p>',
+        actions: [
+          { label: 'Segna come letti', kind: 'ghost', onClick: () => { showToast('Notifiche marcate come lette', 'info'); document.querySelector('.badge-dot')?.remove(); } },
+          { label: 'Chiudi', kind: 'shuttle' }
+        ]
+      });
+    }
+
+    // Recent rides (ultime 2 completate)
+    const recent = MOCK.rides.filter(r => r.status === 'completed').slice(0, 2);
+    document.getElementById('recent-rides').innerHTML = recent.map(r => `
+      <a class="list-row" href="my-rides.html#${r.id}">
+        <div class="row-icon success">${aIcon('check', { size: 20 })}</div>
+        <div class="row-body">
+          <div class="row-title">${r.to_name}</div>
+          <div class="row-meta">${r.date} · ${r.round_trip ? 'A/R' : 'solo andata'}</div>
+          <div class="row-meta mt-4"><span class="badge badge--completed"><span class="dot"></span>Completata</span></div>
+        </div>
+        <div class="row-right">
+          <div class="row-amount neg">-€${r.cost}</div>
+          <div class="caption">wallet</div>
+        </div>
+      </a>`).join('');
+  </script>
+</body>
+</html>

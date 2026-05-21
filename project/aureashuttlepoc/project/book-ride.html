@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Nuova corsa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    /* Mappa Leaflet stilizzata coerente con map-placeholder */
+    .ride-map {
+      position: relative;
+      height: 220px;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      background: #f0f4f5;
+    }
+    .ride-map .leaflet-container { height: 100%; width: 100%; font-family: 'Open Sans', sans-serif; }
+    .ride-map .map-watermark {
+      position: absolute;
+      bottom: 6px; left: 12px;
+      z-index: 400;
+      background: rgba(255,255,255,.88);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--shuttle-teal-dark);
+      letter-spacing: 0.04em;
+      pointer-events: none;
+    }
+    .ar-toggle {
+      display:grid; grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--light-gray);
+      padding: 4px;
+      border-radius: var(--r-md);
+    }
+    .ar-toggle button {
+      padding: 12px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--medium-gray);
+      cursor: pointer;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .ar-toggle button.active {
+      background: #fff;
+      color: var(--shuttle-teal-dark);
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .ar-toggle .ico { width: 18px; height: 18px; }
+    .price-recap {
+      background: var(--shuttle-teal-bg);
+      border:1px solid #99E9DD;
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+    }
+    .price-recap .row { display:flex; justify-content:space-between; font-size: 13px; padding: 4px 0; }
+    .price-recap .row.total { font-weight:700; font-size: 15px; padding-top: 8px; border-top: 1px dashed #99E9DD; margin-top: 6px; color: var(--shuttle-teal-dark); }
+    .suggest-list {
+      background: #fff;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--r-md);
+      margin-top: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .suggest-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .suggest-item:last-child { border-bottom: none; }
+    .suggest-item:hover { background: var(--shuttle-teal-bg); }
+    .suggest-item .sub { font-size: 12px; color: var(--medium-gray); }
+  </style>
+</head>
+<body>
+  <div class="patient-app">
+    <header class="patient-sub-header">
+      <a href="home.html" class="back-btn" aria-label="Indietro"><span id="ico-back"></span></a>
+      <div class="page-title">Nuova corsa</div>
+      <button class="back-btn" onclick="resetForm()" aria-label="Reset" title="Ripristina"><span id="ico-refresh"></span></button>
+    </header>
+
+    <div class="patient-content">
+      <!-- Banner handoff da AureaCare -->
+      <div id="handoff-banner"></div>
+
+      <!-- Mappa OpenStreetMap (Leaflet) -->
+      <div class="ride-map mb-16" id="ride-map" aria-label="Mappa della corsa">
+        <div class="map-watermark">// OPENSTREETMAP · MOCKUP DEMO</div>
+      </div>
+
+      <!-- Form -->
+      <form id="rideForm">
+        <!-- Data + ora -->
+        <div class="flex gap-8">
+          <div class="field" style="flex:1">
+            <label class="field-label" for="rideDate">Data</label>
+            <div class="input-container"><span id="ico-cal"></span><input class="input" id="rideDate" type="date" value="2026-05-24" required></div>
+          </div>
+          <div class="field" style="flex:1">
+            <label class="field-label" for="rideTime">Ora</label>
+            <div class="input-container"><span id="ico-clock"></span><input class="input" id="rideTime" type="time" value="14:30" required></div>
+          </div>
+        </div>
+
+        <!-- Partenza -->
+        <div class="field">
+          <label class="field-label" for="fromAddr">Indirizzo di partenza</label>
+          <div class="input-container"><span id="ico-from"></span><input class="input" id="fromAddr" value="Via Tuscolana 124, Roma" placeholder="Indirizzo, civico, città" autocomplete="off"></div>
+          <p class="field-hint">Predefinito: il tuo indirizzo di residenza.</p>
+        </div>
+
+        <!-- Destinazione -->
+        <div class="field">
+          <label class="field-label" for="toAddr">Destinazione (struttura sanitaria)</label>
+          <div class="input-container"><span id="ico-to"></span><input class="input" id="toAddr" placeholder="Cerca tra le strutture convenzionate…" autocomplete="off" value=""></div>
+          <div class="suggest-list" id="suggest-list" style="display:none"></div>
+        </div>
+
+        <!-- A/R -->
+        <div class="field">
+          <label class="field-label">Tipologia corsa</label>
+          <div class="ar-toggle">
+            <button type="button" id="btn-rt" class="active"><span id="ico-rt"></span>Andata + ritorno</button>
+            <button type="button" id="btn-ow"><span id="ico-ow"></span>Solo andata</button>
+          </div>
+          <p class="field-hint" id="ar-hint">Il taxi attenderà o tornerà a recuperarti dopo la visita.</p>
+        </div>
+
+        <!-- Note -->
+        <div class="field">
+          <label class="field-label" for="rideNote">Note al tassista <span style="color:var(--medium-gray);font-weight:400">(facoltativo)</span></label>
+          <div class="input-container"><textarea class="input" id="rideNote" placeholder="Es. paziente con difficoltà a camminare, suonare il citofono…" rows="3"></textarea></div>
+        </div>
+      </form>
+
+      <!-- Recap prezzo -->
+      <div class="divider-eyebrow"><span>Riepilogo costo</span><span class="line"></span></div>
+      <div class="price-recap" id="price-recap">
+        <div class="row"><span>Corsa</span><span><strong>€80,00</strong></span></div>
+        <div class="row"><span>Diritti fissi · andata</span><span>€11,00</span></div>
+        <div class="row" id="row-back"><span>Diritti fissi · ritorno</span><span>€11,00</span></div>
+        <div class="row total"><span>Totale corsa A/R</span><span id="total-price">€102,00</span></div>
+      </div>
+
+      <!-- Wallet preview -->
+      <div class="card card--padded mt-16" style="background:#fff;border-color:var(--border-soft)">
+        <div class="flex items-center gap-12">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--shuttle-teal-light);color:var(--shuttle-teal-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span id="ico-wallet"></span>
+          </div>
+          <div style="flex:1">
+            <p style="font-size:13px;font-weight:700">Wallet · Pacchetto Continuità</p>
+            <p class="caption">Hai <strong id="curr-rides">12 corse</strong> residue. Dopo questa corsa: <strong id="after-rides" style="color:var(--shuttle-teal-dark)">11 corse residue</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn--shuttle btn--block btn--lg mt-20" id="submitBtn">
+        Procedi al riepilogo
+        <span id="ico-arrow"></span>
+      </button>
+    </div>
+
+    <nav class="bottom-nav">
+      <a class="nav-item" href="home.html"><span id="nv-home"></span>Home</a>
+      <a class="nav-item active" href="my-rides.html"><span id="nv-rides"></span>Corse</a>
+      <a class="nav-item" href="wallet.html"><span id="nv-wallet"></span>Wallet</a>
+      <a class="nav-item" href="profile.html"><span id="nv-profile"></span>Profilo</a>
+    </nav>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('ico-back').outerHTML  = aIcon('arrow-left', { size: 18 });
+    document.getElementById('ico-refresh').outerHTML = aIcon('refresh', { size: 16 });
+    document.getElementById('ico-cal').outerHTML   = aIcon('calendar', { size: 18 });
+    document.getElementById('ico-clock').outerHTML = aIcon('clock', { size: 18 });
+    document.getElementById('ico-from').outerHTML  = aIcon('map-pin', { size: 18 });
+    document.getElementById('ico-to').outerHTML    = aIcon('navigation', { size: 18 });
+    document.getElementById('ico-rt').outerHTML    = aIcon('shuffle', { size: 16 });
+    document.getElementById('ico-ow').outerHTML    = aIcon('arrow-right', { size: 16 });
+    document.getElementById('ico-wallet').outerHTML= aIcon('wallet', { size: 18 });
+    document.getElementById('ico-arrow').outerHTML = aIcon('arrow-right', { size: 18 });
+    document.getElementById('nv-home').outerHTML   = aIcon('home',   { size: 22 });
+    document.getElementById('nv-rides').outerHTML  = aIcon('truck',  { size: 22 });
+    document.getElementById('nv-wallet').outerHTML = aIcon('wallet', { size: 22 });
+    document.getElementById('nv-profile').outerHTML= aIcon('user',   { size: 22 });
+
+    // ---------- State ----------
+    let roundTrip = true;
+    let toStructure = null;   // { id, name, address }
+
+    // ---------- Mappa OpenStreetMap ----------
+    let mapHandle = null;
+    function refreshMap() {
+      const fromText = document.getElementById('fromAddr').value;
+      let toCoords = null, toText = '';
+      if (toStructure && toStructure.lat) {
+        toCoords = { lat: toStructure.lat, lng: toStructure.lng };
+        toText = toStructure.name;
+      } else {
+        toText = document.getElementById('toAddr').value;
+      }
+      const container = document.getElementById('ride-map');
+      // Conserva l'overlay watermark dopo il re-render Leaflet
+      mapHandle = aureaMap.renderRideMap(container, {
+        fromText,
+        toText,
+        toCoords,
+        interactive: true
+      });
+      if (!container.querySelector('.map-watermark')) {
+        const wm = document.createElement('div');
+        wm.className = 'map-watermark';
+        wm.textContent = '// OPENSTREETMAP · MOCKUP DEMO';
+        container.appendChild(wm);
+      }
+    }
+
+    // ---------- Handoff da AureaCare ----------
+    const handoff = readCareHandoff();
+    if (handoff) {
+      const mode = localStorage.getItem('aureashuttle_handoff_mode') || 'pre-flagged';
+      const zone = document.getElementById('handoff-banner');
+      let inner;
+      if (mode === 'sober') {
+        inner = `
+          <div class="handoff-care handoff--sober mb-16">
+            <div class="handoff-icon">${aIcon('heart', { size: 20 })}</div>
+            <div style="flex:1">
+              <div class="handoff-title">Dati corsa importati da AureaCare</div>
+              <p class="handoff-sub">Verifica e conferma quando sei pronta.</p>
+            </div>
+          </div>`;
+      } else if (mode === 'visual') {
+        inner = `
+          <div class="handoff-care handoff--visual mb-16">
+            <div class="visual-head">
+              <div class="handoff-icon">${aIcon('heart', { size: 20 })}</div>
+              <div>
+                <p class="handoff-title">Trasporto per visita AureaCare</p>
+                <p class="handoff-sub">${handoff.service || 'Prestazione sanitaria'} · ${handoff.date || ''}</p>
+              </div>
+            </div>
+            <div class="step3">
+              <div class="row"><span class="num">1</span><span>Verifica i dati precompilati qui sotto.</span></div>
+              <div class="row"><span class="num">2</span><span>Conferma orario e tipologia (A/R consigliato).</span></div>
+              <div class="row"><span class="num">3</span><span>Il costo scala dal tuo wallet AureaShuttle.</span></div>
+            </div>
+          </div>`;
+      } else {
+        // pre-flagged (default)
+        inner = `
+          <div class="handoff-care mb-16">
+            <div class="handoff-icon">${aIcon('heart', { size: 20 })}</div>
+            <div style="flex:1">
+              <div class="handoff-title">Dati corsa importati da AureaCare</div>
+              <p class="handoff-sub">Hai prenotato <strong>${handoff.service || 'una visita'}</strong>${handoff.date ? ' per il ' + handoff.date : ''}. Abbiamo precompilato la corsa: modifica solo se necessario.</p>
+              <div class="prefill-list">
+                ${handoff.booking_id ? `<div class="row"><span>Riferimento AureaCare</span><span class="font-mono">${handoff.booking_id}</span></div>` : ''}
+                ${handoff.service ? `<div class="row"><span>Prestazione</span><span>${handoff.service}</span></div>` : ''}
+                ${handoff.dest ? `<div class="row"><span>Destinazione</span><span>${handoff.dest}</span></div>` : ''}
+                ${handoff.date ? `<div class="row"><span>Data visita</span><span>${handoff.date}${handoff.time ? ' · ' + handoff.time : ''}</span></div>` : ''}
+                <div class="row"><span>Tipologia</span><span>Andata + ritorno (default)</span></div>
+              </div>
+            </div>
+          </div>`;
+      }
+      zone.innerHTML = inner;
+
+      // Pre-compila form
+      if (handoff.dest) {
+        document.getElementById('toAddr').value = handoff.dest;
+        const m = MOCK.structures.find(s => handoff.dest.toLowerCase().includes(s.name.toLowerCase().split(' ')[0].toLowerCase()) ||
+                                              s.name.toLowerCase().includes(handoff.dest.toLowerCase()));
+        if (m) toStructure = m;
+        else toStructure = { id: 'STR-CUSTOM', name: handoff.dest, address: '' };
+      }
+      if (handoff.date) document.getElementById('rideDate').value = handoff.date;
+      if (handoff.time) document.getElementById('rideTime').value = handoff.time;
+      if (handoff.service) document.getElementById('rideNote').value = 'Trasporto per: ' + handoff.service;
+    }
+
+    // ---------- Mappa: init ----------
+    refreshMap();
+
+    // ---------- Suggest list strutture ----------
+    const toInput = document.getElementById('toAddr');
+    const suggestEl = document.getElementById('suggest-list');
+    function renderSuggest(q) {
+      const ql = q.trim().toLowerCase();
+      if (ql.length < 1) { suggestEl.style.display = 'none'; return; }
+      const matches = MOCK.structures.filter(s => s.name.toLowerCase().includes(ql) || s.district.toLowerCase().includes(ql)).slice(0, 6);
+      if (!matches.length) { suggestEl.style.display = 'none'; return; }
+      suggestEl.innerHTML = matches.map(s => `
+        <div class="suggest-item" data-id="${s.id}">
+          ${aIcon('building', { size: 18, cls: 'text-shuttle' })}
+          <div>
+            <div>${s.name}</div>
+            <div class="sub">${s.address} · ${s.district}</div>
+          </div>
+        </div>`).join('');
+      suggestEl.style.display = 'block';
+      suggestEl.querySelectorAll('.suggest-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const s = MOCK.structures.find(x => x.id === el.dataset.id);
+          toStructure = s;
+          toInput.value = s.name;
+          suggestEl.style.display = 'none';
+          refreshMap();
+        });
+      });
+    }
+    toInput.addEventListener('input', e => {
+      // L'utente sta digitando un indirizzo libero — invalido la struttura selezionata
+      toStructure = null;
+      renderSuggest(e.target.value);
+    });
+    toInput.addEventListener('change', refreshMap);
+    document.getElementById('fromAddr').addEventListener('change', refreshMap);
+    toInput.addEventListener('focus', e => renderSuggest(e.target.value || ''));
+    document.addEventListener('click', e => { if (!suggestEl.contains(e.target) && e.target !== toInput) suggestEl.style.display = 'none'; });
+
+    // ---------- A/R toggle ----------
+    const btnRT = document.getElementById('btn-rt');
+    const btnOW = document.getElementById('btn-ow');
+    function setRT(rt) {
+      roundTrip = rt;
+      btnRT.classList.toggle('active', rt);
+      btnOW.classList.toggle('active', !rt);
+      document.getElementById('row-back').style.display = rt ? 'flex' : 'none';
+      document.getElementById('total-price').textContent = rt ? '€102,00' : '€91,00';
+      document.getElementById('ar-hint').textContent = rt
+        ? 'Il taxi attenderà o tornerà a recuperarti dopo la visita.'
+        : 'Una sola tratta. Risparmi €11 di diritti fissi.';
+      // Wallet preview
+      const w = MOCK.wallet;
+      document.getElementById('curr-rides').textContent = w.remaining + ' corse';
+      document.getElementById('after-rides').textContent = (w.remaining - 1) + ' corse residue';
+    }
+    btnRT.onclick = () => setRT(true);
+    btnOW.onclick = () => setRT(false);
+    setRT(true);
+
+    // ---------- Submit ----------
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      if (!toStructure && !toInput.value.trim()) return showToast('Inserisci la destinazione', 'error');
+      if (MOCK.wallet.remaining < 1) return showToast('Wallet esaurito. Ricarica per continuare.', 'error');
+      const dest = toStructure ? toStructure.name : toInput.value.trim();
+      const params = new URLSearchParams({
+        date: document.getElementById('rideDate').value,
+        time: document.getElementById('rideTime').value,
+        from: document.getElementById('fromAddr').value,
+        to: dest,
+        ar: roundTrip ? '1' : '0',
+        note: document.getElementById('rideNote').value
+      });
+      if (handoff && handoff.booking_id) params.set('care_ref', handoff.booking_id);
+      location.href = 'ride-summary.html?' + params.toString();
+    });
+
+    function resetForm() {
+      document.getElementById('rideForm').reset();
+      toStructure = null;
+      setRT(true);
+      refreshMap();
+      showToast('Form ripristinato', 'info');
+    }
+  </script>
+</body>
+</html>

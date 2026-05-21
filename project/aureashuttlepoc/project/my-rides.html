@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AureaShuttle · Le mie corse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="js/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    .ride-map-modal {
+      position: relative;
+      height: 180px;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      margin: 8px 0 14px;
+      background:#f0f4f5;
+    }
+    .ride-map-modal .leaflet-container { height: 100%; width: 100%; font-family: 'Open Sans', sans-serif; }
+    .ride-map-modal .map-watermark {
+      position: absolute; bottom: 6px; left: 12px; z-index: 400;
+      background: rgba(255,255,255,.88); padding: 3px 8px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      color: var(--shuttle-teal-dark); letter-spacing: 0.04em; pointer-events: none;
+    }
+    .empty-state {
+      text-align:center;
+      padding: 32px 20px;
+      color: var(--medium-gray);
+    }
+    .empty-state .ico { width: 48px; height: 48px; color: #ccc; margin: 0 auto 12px; }
+  </style>
+</head>
+<body>
+  <div class="patient-app">
+    <header class="patient-header">
+      <div class="brand">
+        <div class="brand-logo">A<span class="brand-badge">SHUT</span></div>
+        <span>Le mie corse</span>
+      </div>
+      <div class="app-switcher-wrap">
+        <button class="icon-btn" data-app-switcher><span id="ico-grid"></span></button>
+      </div>
+      <a href="book-ride.html" class="icon-btn" aria-label="Nuova corsa"><span id="ico-plus"></span></a>
+    </header>
+
+    <div class="patient-content">
+      <!-- Tabs -->
+      <div class="tabs" id="tabs" style="margin-bottom: 16px">
+        <button class="tab active" data-filter="all">Tutte</button>
+        <button class="tab" data-filter="pending">In attesa</button>
+        <button class="tab" data-filter="approved">Approvate</button>
+        <button class="tab" data-filter="in_progress">In corso</button>
+        <button class="tab" data-filter="completed">Completate</button>
+        <button class="tab" data-filter="cancelled">Annullate</button>
+      </div>
+
+      <div id="rides-list"></div>
+
+      <div class="empty-state" id="empty" style="display:none">
+        <span id="empty-icon"></span>
+        <p style="font-weight:700; color: var(--ink); margin-top: 8px">Nessuna corsa in questa categoria</p>
+        <p class="caption">Prova un altro filtro o prenota la tua prima corsa.</p>
+        <a href="book-ride.html" class="btn btn--shuttle btn--sm mt-16">Prenota una corsa</a>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a class="nav-item" href="home.html"><span id="nv-home"></span>Home</a>
+      <a class="nav-item active" href="my-rides.html"><span id="nv-rides"></span>Corse</a>
+      <a class="nav-item" href="wallet.html"><span id="nv-wallet"></span>Wallet</a>
+      <a class="nav-item" href="profile.html"><span id="nv-profile"></span>Profilo</a>
+    </nav>
+  </div>
+
+  <!-- Modale dettaglio corsa -->
+  <div class="modal-overlay" id="modal-ride">
+    <div class="modal modal--wide">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="mr-id">RIDE-AS-1024</div>
+          <p class="caption" id="mr-sub">Corsa · 24 mag · 14:30</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-ride')"><span id="ico-mclose"></span></button>
+      </div>
+      <div class="modal-body" id="mr-body"></div>
+      <div class="modal-footer" id="mr-footer"></div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="js/navigation.js"></script>
+  <script>
+    document.getElementById('empty-icon').outerHTML = aIcon('truck', { size: 48 });
+    document.getElementById('ico-grid').outerHTML  = aIcon('grid', { size: 20 });
+    document.getElementById('ico-plus').outerHTML  = aIcon('plus', { size: 20 });
+    document.getElementById('ico-mclose').outerHTML= aIcon('x', { size: 14 });
+    document.getElementById('nv-home').outerHTML   = aIcon('home',   { size: 22 });
+    document.getElementById('nv-rides').outerHTML  = aIcon('truck',  { size: 22 });
+    document.getElementById('nv-wallet').outerHTML = aIcon('wallet', { size: 22 });
+    document.getElementById('nv-profile').outerHTML= aIcon('user',   { size: 22 });
+
+    // Merge pending rides locali (creati da ride-summary) con mock rides
+    let localPending = [];
+    try {
+      localPending = (JSON.parse(localStorage.getItem('aureashuttle_pending_rides') || '[]') || []).map(p => ({
+        id: p.id,
+        from_addr: p.from,
+        to_struct_id: null,
+        to_name: p.to,
+        date: (new Date(p.date)).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }),
+        time: p.time,
+        round_trip: p.round_trip,
+        cost: p.cost,
+        status: 'pending',
+        submitted: p.submitted,
+        linked_care_booking: p.care_ref || null,
+        note: '',
+        taxi_company_id: null,
+        driver: null
+      }));
+    } catch(e){}
+
+    const ALL_RIDES = localPending.concat(MOCK.rides);
+
+    let currentFilter = 'all';
+
+    function renderList() {
+      let list = ALL_RIDES;
+      if (currentFilter !== 'all') {
+        if (currentFilter === 'approved') list = ALL_RIDES.filter(r => ['approved','dispatched','accepted'].includes(r.status));
+        else list = ALL_RIDES.filter(r => r.status === currentFilter);
+      }
+      const listEl = document.getElementById('rides-list');
+      const emptyEl = document.getElementById('empty');
+      if (!list.length) { listEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = list.map(r => rideCard(r)).join('');
+      listEl.querySelectorAll('[data-ride]').forEach(el => {
+        el.addEventListener('click', () => openRide(el.dataset.ride));
+      });
+    }
+
+    function rideCard(r) {
+      const st = MOCK.rideStatusLabel[r.status];
+      return `
+        <div class="ride-card" data-ride="${r.id}">
+          <div class="top-row">
+            <div>
+              <p class="ride-when">${r.date} · ${r.time}</p>
+              <p class="caption">${r.round_trip ? 'Andata + ritorno' : 'Solo andata'}</p>
+            </div>
+            <div class="text-right">
+              <p class="ride-cost">€${r.cost}</p>
+              <p class="caption">wallet</p>
+            </div>
+          </div>
+          <div class="route">
+            <div class="dots">
+              <span class="d d1"></span>
+              <span class="line"></span>
+              <span class="d d2"></span>
+            </div>
+            <div class="addr">
+              <div>
+                <p class="label">Partenza</p>
+                <p class="name">${r.from_addr}</p>
+              </div>
+              <div>
+                <p class="label">Destinazione</p>
+                <p class="name">${r.to_name}</p>
+              </div>
+            </div>
+          </div>
+          <div class="bot-row">
+            <span class="badge ${st.cls}"><span class="dot"></span>${st.label}</span>
+            ${r.linked_care_booking ? `<span class="caption" style="color:var(--care-blue-dark)">${aIcon('heart',{size:11})} da AureaCare</span>` : `<span class="caption font-mono">${r.id.slice(-6)}</span>`}
+          </div>
+        </div>`;
+    }
+
+    // Tabs
+    document.querySelectorAll('#tabs .tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('#tabs .tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        currentFilter = t.dataset.filter;
+        renderList();
+      });
+    });
+
+    // Open detail modal
+    function openRide(id) {
+      const r = ALL_RIDES.find(x => x.id === id);
+      if (!r) return;
+      const st = MOCK.rideStatusLabel[r.status];
+      document.getElementById('mr-id').textContent = r.id;
+      document.getElementById('mr-sub').textContent = `${r.date} · ${r.time} · ${r.round_trip ? 'A/R' : 'solo andata'}`;
+
+      // Timeline
+      const lifecycle = ['requested','pending','approved','dispatched','accepted','in_progress','completed'];
+      const labels    = ['Inviata','Approvazione','Approvata','Inviata taxi','Accettata','In corso','Completata'];
+      let stepStates;
+      if (r.status === 'cancelled') {
+        stepStates = lifecycle.map((_, i) => i === 0 ? 'current' : '');
+      } else {
+        const idx = Math.max(0, lifecycle.indexOf(r.status));
+        stepStates = lifecycle.map((_, i) => i < idx ? 'done' : (i === idx ? 'current' : ''));
+      }
+      const tl = `
+        <div class="timeline-h">
+          ${lifecycle.map((s, i) => `
+            <div class="step ${stepStates[i]}">
+              <div class="dot"></div>
+              <div class="lbl">${labels[i]}</div>
+            </div>`).join('')}
+        </div>
+        ${r.status === 'cancelled' ? '<p class="caption text-center mt-12" style="color: var(--b-cancelled-tx); font-weight: 600">Corsa annullata</p>' : ''}
+      `;
+
+      const driverHtml = r.driver ? `
+        <div class="divider-eyebrow"><span>Tassista assegnato</span><span class="line"></span></div>
+        <div class="driver-card mt-4">
+          <div class="avatar">${r.driver.name.split(' ').map(w => w[0]).join('').slice(0,2)}</div>
+          <div class="body">
+            <p class="name">${r.driver.name}</p>
+            <p class="meta">${r.driver.car} · <span class="font-mono">${r.driver.plate}</span></p>
+          </div>
+          <a class="btn btn--ghost btn--sm" href="https://destone28.github.io/aureaviapoc/ride-detail.html" target="_blank" rel="noopener" style="color:var(--shuttle-teal-dark)">${aIcon('external',{size:14})} AureaVia</a>
+        </div>` : '';
+
+      const careLink = r.linked_care_booking ? `
+        <a href="#" onclick="event.preventDefault();showToast('Apertura simulata: visita AureaCare ${r.linked_care_booking}','info')" class="card card--padded mt-12" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border-color:#B5D4F4;background:var(--care-blue-light)">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--care-blue);color:#fff;display:flex;align-items:center;justify-content:center">${aIcon('heart',{size:18})}</div>
+          <div style="flex:1">
+            <p style="font-weight:700;font-size:13px;color:var(--care-blue-dark)">Vedi visita su AureaCare</p>
+            <p class="caption font-mono" style="color:#2A4D8F">${r.linked_care_booking}</p>
+          </div>
+          <span style="color: var(--care-blue-dark)">${aIcon('arrow-up-right',{size:18})}</span>
+        </a>` : '';
+
+      document.getElementById('mr-body').innerHTML = `
+        <div class="flex items-center gap-12 mb-16">
+          <span class="badge ${st.cls}" style="font-size: 13px; padding: 6px 14px"><span class="dot"></span>${st.label}</span>
+        </div>
+
+        <div class="ride-map-modal" id="mr-map">
+          <div class="map-watermark">// OPENSTREETMAP · TRATTA</div>
+        </div>
+
+        <div class="divider-eyebrow" style="margin-top:0"><span>Tratta</span><span class="line"></span></div>
+        <div class="ride-card" style="cursor:default">
+          <div class="route">
+            <div class="dots">
+              <span class="d d1"></span><span class="line"></span><span class="d d2"></span>
+            </div>
+            <div class="addr">
+              <div><p class="label">Partenza</p><p class="name">${r.from_addr}</p></div>
+              <div><p class="label">Destinazione</p><p class="name">${r.to_name}</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-eyebrow"><span>Stato corsa</span><span class="line"></span></div>
+        ${tl}
+
+        ${driverHtml}
+        ${careLink}
+
+        ${r.note ? `
+          <div class="divider-eyebrow"><span>Note al tassista</span><span class="line"></span></div>
+          <p style="font-size: 13px; line-height: 1.5">${r.note}</p>` : ''}
+
+        <div class="divider-eyebrow"><span>Costo</span><span class="line"></span></div>
+        <div class="flex justify-between" style="font-size: 14px">
+          <span class="text-muted">Totale corsa</span>
+          <span style="font-weight:700; color: var(--shuttle-teal-dark); font-size: 16px">€${r.cost}</span>
+        </div>
+        <p class="caption mt-4">Inviata il ${r.submitted}</p>
+      `;
+
+      // Footer actions
+      const showCancel = ['requested','pending','approved','dispatched'].includes(r.status);
+      document.getElementById('mr-footer').innerHTML = `
+        ${showCancel ? `<button class="btn btn--danger" onclick="cancelRide('${r.id}')">Annulla corsa</button>` : ''}
+        <button class="btn btn--secondary" onclick="closeModal('modal-ride')">Chiudi</button>
+      `;
+
+      openModal('modal-ride');
+
+      // Render mappa quando il modal è effettivamente visibile (Leaflet ha bisogno del layout)
+      setTimeout(() => {
+        const mapEl = document.getElementById('mr-map');
+        if (!mapEl) return;
+        // Coordinate destinazione: priorità a struttura conosciuta
+        let toCoords = null;
+        if (r.to_struct_id) {
+          const s = MOCK.structures.find(x => x.id === r.to_struct_id);
+          if (s) toCoords = { lat: s.lat, lng: s.lng };
+        }
+        aureaMap.renderRideMap(mapEl, {
+          fromText: r.from_addr,
+          toText: r.to_name,
+          toCoords,
+          interactive: true,
+          zoomControl: false
+        });
+      }, 80);
+    }
+
+    function cancelRide(id) {
+      showConfirmDialog(
+        'Annullare la corsa?',
+        'Una volta annullata, dovrai prenotare di nuovo. Il wallet non verrà addebitato.',
+        () => {
+          showToast('Corsa annullata', 'info');
+          closeModal('modal-ride');
+        },
+        { danger: true, confirmLabel: 'Sì, annulla' }
+      );
+    }
+
+    // Init
+    renderList();
+
+    // Hash deep-link (es. #RIDE-AS-1024 dalla home)
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      setTimeout(() => openRide(id), 100);
+    }
+  </script>
+</body>
+</html>
