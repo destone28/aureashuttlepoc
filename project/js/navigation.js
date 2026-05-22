@@ -470,6 +470,50 @@ function openAdminNotifications() {
   });
 }
 
+// ---------- Menu "Altro" della bottom-bar admin su mobile ----------
+// Su mobile la sidebar admin si riduce a 4 voci primarie + uno slot "Altro" che apre
+// un'action sheet con KPI ESG, Impostazioni ed Esci.
+function openMoreAdminMenu() {
+  openInfoModal({
+    title: 'Altre azioni console',
+    accent: 'shuttle',
+    bodyHTML: `
+      <div class="settings-list" style="background:#fff;border:1px solid var(--border-soft);border-radius:8px;overflow:hidden">
+        <a class="settings-row" href="#" data-action="esg" style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border-soft);text-decoration:none;color:inherit">
+          ${aIcon('leaf',{size:18})}
+          <div style="flex:1"><p style="font-weight:600;font-size:14px">Report KPI ESG</p><p style="font-size:12px;color:var(--medium-gray)">Impatto aggregato della rete</p></div>
+          ${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+        </a>
+        <a class="settings-row" href="#" data-action="settings" style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border-soft);text-decoration:none;color:inherit">
+          ${aIcon('settings',{size:18})}
+          <div style="flex:1"><p style="font-weight:600;font-size:14px">Impostazioni console</p><p style="font-size:12px;color:var(--medium-gray)">Notifiche, 2FA, auto-approvazione</p></div>
+          ${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+        </a>
+        <a class="settings-row danger" href="#" data-action="logout" style="padding:14px 16px;display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--error)">
+          ${aIcon('log-out',{size:18})}
+          <div style="flex:1"><p style="font-weight:600;font-size:14px">Esci dalla console</p><p style="font-size:12px;color:var(--medium-gray)">Logout Aurea Suite</p></div>
+          ${aIcon('chevron-right',{size:16,cls:'text-muted'})}
+        </a>
+      </div>`,
+    actions: [{ label: 'Chiudi', kind: 'secondary' }]
+  });
+  // Hook delle 3 voci dopo il mount
+  setTimeout(() => {
+    const overlay = document.querySelector('.modal-overlay.active:last-of-type') || document.querySelector('.modal-overlay.active');
+    if (!overlay) return;
+    overlay.querySelectorAll('[data-action]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const action = el.dataset.action;
+        overlay.remove();
+        if (action === 'esg') openEsgReport();
+        else if (action === 'settings') openAdminSettings();
+        else if (action === 'logout') logout();
+      });
+    });
+  }, 30);
+}
+
 // ---------- Mappe OpenStreetMap (Leaflet, frontend-only) ----------
 // Tutto qui è puramente client-side: niente backend, niente geocoder esterno.
 // Il "geocoder" interno usa MOCK.romaGeo.landmarks + MOCK.structures per riconoscere
