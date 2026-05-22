@@ -348,8 +348,7 @@
     function openNotifPrefs() {
       const channels = [
         { id: 'push',  label: 'Push', sub: 'Stato approvazione, partenza, arrivo', on: true },
-        { id: 'email', label: 'Email', sub: 'Ricevute, riepiloghi mensili', on: true },
-        { id: 'sms',   label: 'SMS', sub: 'Solo eventi critici (annullamento)', on: false }
+        { id: 'email', label: 'Email', sub: 'Ricevute, riepiloghi mensili', on: true }
       ];
       openInfoModal({
         title: 'Preferenze notifiche',
@@ -362,8 +361,7 @@
                 <button class="toggle-switch ${c.on ? 'on' : ''}" data-ch="${c.id}" onclick="this.classList.toggle('on')" style="position:relative;width:38px;height:22px;background:${c.on ? 'var(--shuttle-teal)' : 'var(--border-gray)'};border-radius:999px;border:none;cursor:pointer"></button>
               </div>`).join('')}
           </div>
-          <style>.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .15s}.toggle-switch.on{background:var(--shuttle-teal)!important}.toggle-switch.on::after{transform:translateX(16px)}</style>
-          <p class="caption mt-12" style="font-size:11px">Modifiche salvate localmente nel mockup. In produzione passano dal backend.</p>`,
+          <style>.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .15s}.toggle-switch.on{background:var(--shuttle-teal)!important}.toggle-switch.on::after{transform:translateX(16px)}</style>`,
         actions: [
           { label: 'Annulla', kind: 'secondary' },
           { label: 'Salva preferenze', kind: 'shuttle', onClick: () => showToast('Preferenze notifiche salvate', 'shuttle') }
