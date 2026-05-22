@@ -1105,7 +1105,8 @@ textarea.input { resize: vertical; min-height: 80px; }
 .sheet h3 { font-size: 16px; margin-bottom: 10px; }
 @keyframes slideUpSheet { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
 
-/* Rotation hint */
+/* Mobile hint — non bloccante: si apre solo se body.admin-page ha la classe
+   .show-rotate-hint, gestita lato JS al primo accesso mobile della sessione. */
 .rotate-hint {
   display: none;
   position: fixed; inset: 0;
@@ -1121,9 +1122,7 @@ textarea.input { resize: vertical; min-height: 80px; }
 .rotate-hint h2 { font-size:22px; font-weight:700; }
 .rotate-hint p  { color:#B6BBC4; max-width: 320px; line-height: 1.5; }
 .rotate-hint .ico { width:64px; height:64px; color: var(--primary-orange); }
-@media (max-width: 760px) and (orientation: portrait) {
-  body.admin-page .rotate-hint { display: flex; }
-}
+body.admin-page.show-rotate-hint .rotate-hint { display: flex; }
 
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1147,3 +1146,342 @@ textarea.input { resize: vertical; min-height: 80px; }
 .text-care{color:var(--care-blue-dark)}
 .font-mono{font-family:'JetBrains Mono','SF Mono',Menlo,monospace}
 .w-full{width:100%}
+
+/* ============================================================
+   Dev credit — riga sobria "Sviluppato da 3DSprinted"
+   Compare nel footer di admin-login e in fondo al profilo paziente.
+   ============================================================ */
+.dev-credit {
+  text-align: center;
+  font-size: 11px;
+  color: var(--medium-gray);
+  margin-top: 12px;
+}
+.dev-credit a {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--border-gray);
+}
+.dev-credit a:hover { color: var(--shuttle-teal-dark); border-color: var(--shuttle-teal); }
+
+/* ============================================================
+   Sponsor strip — "Con il sostegno di"
+   Riusata sotto la card SROI (profilo paziente) e sotto i KPI ESG aggregato (admin).
+   ============================================================ */
+.sponsor-strip {
+  background: #fff;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+}
+.sponsor-strip .sponsor-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--medium-gray);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.sponsor-strip .sponsor-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+.sponsor-strip .sponsor-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background .15s ease;
+}
+.sponsor-strip .sponsor-slot.filled:hover { background: var(--light-gray); }
+.sponsor-strip .sponsor-logo {
+  max-height: 32px;
+  max-width: 100%;
+  width: auto;
+  filter: grayscale(1);
+  opacity: 0.85;
+  transition: filter .15s ease, opacity .15s ease;
+}
+.sponsor-strip .sponsor-slot.filled:hover .sponsor-logo { filter: grayscale(0); opacity: 1; }
+/* Wordmark fallback se il PNG non carica */
+.sponsor-strip .sponsor-wordmark {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.sponsor-strip .sponsor-slot.empty {
+  border: 1px dashed var(--border-gray);
+  background: #FAFAFA;
+  color: var(--medium-gray);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sponsor-strip .sponsor-cta {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--medium-gray);
+}
+.sponsor-strip .sponsor-cta a {
+  color: var(--shuttle-teal-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+@media (max-width: 520px) {
+  .sponsor-strip .sponsor-row { grid-template-columns: 1fr; }
+  .sponsor-strip .sponsor-slot.empty { display: none; }
+}
+
+/* ============================================================
+   7. Admin responsive — tablet & mobile
+   La parte admin è pensata per desktop, ma resta usabile fino a 360px.
+   ============================================================ */
+
+/* Tablet medio: padding ridotti, KPI 2-col */
+@media (max-width: 960px) {
+  .admin-content { padding: 20px 16px; }
+  .admin-topbar  { padding: 14px 16px; gap: 10px; }
+  .admin-topbar h1 { font-size: 17px; }
+}
+
+/* Mobile: sidebar → bottom-bar, topbar compatta, layout 1-col */
+@media (max-width: 760px) {
+  /* La rotate-hint resta come fallback (vedi blocco rotate-hint),
+     ma con CTA "Usa layout mobile" l'utente può chiuderla e usare l'app. */
+
+  .admin-shell {
+    grid-template-columns: 1fr;
+    padding-bottom: 64px; /* spazio per la bottom-bar admin */
+  }
+
+  /* Sidebar → bottom-bar orizzontale, simile alla patient app */
+  .admin-sidebar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    top: auto;
+    height: 60px;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 0;
+    padding: 6px 8px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 -4px 16px rgba(0,0,0,.18);
+    z-index: 40;
+  }
+  .admin-sidebar .logo { display: none; }
+  .admin-sidebar .spacer { display: none; }
+  .admin-sidebar .sb-item {
+    flex: 1;
+    width: auto; height: 100%;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 2px;
+    color: #B6BBC4;
+  }
+  .admin-sidebar .sb-item .ico { width: 18px; height: 18px; }
+  /* Etichetta visibile sotto l'icona via data-label */
+  .admin-sidebar .sb-item[data-label]::after {
+    content: attr(data-label);
+    position: static;
+    transform: none;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: 9px;
+    font-weight: 600;
+    box-shadow: none;
+    opacity: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .admin-sidebar .sb-item:hover { background: transparent; color: #fff; }
+  .admin-sidebar .sb-item.active {
+    background: rgba(14,165,164,.18);
+    color: var(--shuttle-teal);
+  }
+
+  /* Topbar: titolo + avatar in alto, badge/bell sotto */
+  .admin-topbar {
+    padding: 12px 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .admin-topbar h1 { font-size: 16px; flex: 1 1 100%; order: -1; }
+  .admin-topbar .avatar { width: 32px; height: 32px; font-size: 12px; }
+  .admin-topbar .badge,
+  .admin-topbar .btn { font-size: 12px; }
+  .admin-topbar .icon-btn { width: 34px !important; height: 34px !important; }
+
+  .admin-content { padding: 16px 12px; }
+  .crumbs { font-size: 12px; }
+
+  /* KPI grid: 2 col su mobile medio, 1 col sotto 420px */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
+  .kpi-card { padding: 14px; }
+  .kpi-value { font-size: 22px !important; }
+  .kpi-label { font-size: 11px; }
+
+  /* ESG-kpi: 2 col */
+  .esg-kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .esg-kpi-num { font-size: 22px !important; }
+
+  /* Layout 2-col su admin-dashboard → stack verticale */
+  .admin-content > div[style*="grid-template-columns:1fr 320px"],
+  .admin-content > div[style*="grid-template-columns: 1fr 320px"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Card / padding-lg compattati */
+  .card.card--padded-lg { padding: 16px; }
+
+  /* Data table → card list verticale */
+  .data-table {
+    display: block;
+    border: none;
+  }
+  .data-table thead { display: none; }
+  .data-table tbody { display: block; }
+  .data-table tr {
+    display: block;
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-md);
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .data-table tbody tr:hover { background: #fff; }
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 6px 0;
+    border: none;
+    font-size: 13px;
+    gap: 12px;
+    text-align: right;
+  }
+  .data-table td::before {
+    content: attr(data-label);
+    color: var(--medium-gray);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    flex-shrink: 0;
+    min-width: 84px;
+    align-self: center;
+  }
+  .data-table td:empty,
+  .data-table td:not([data-label]):first-child {
+    /* Prima cella (expand caret in approvals): mostra a sinistra senza prefix */
+  }
+  /* Cella senza data-label resta full-width */
+  .data-table td:not([data-label]) {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .data-table td:not([data-label])::before { content: none; }
+  .data-table .cell-sub { margin-top: 4px; }
+  .data-table .actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  .data-table .actions .btn { font-size: 12px; padding: 6px 10px; }
+
+  /* Caret di expand (admin-approvals): in alto a destra della card mobile */
+  .data-table .expand-toggle-cell {
+    width: auto !important;
+    position: absolute;
+    top: 8px; right: 8px;
+    padding: 0 !important;
+    text-align: right;
+  }
+  .data-table tr { position: relative; padding-top: 28px; }
+  .data-table tr.expand-row { padding-top: 0; }
+
+  /* Expand row di admin-approvals → torna a flusso normale dentro la card */
+  .data-table tr.expand-row {
+    background: #FAFBFD;
+    padding: 0;
+    margin-bottom: 14px;
+  }
+  .data-table tr.expand-row td {
+    display: block;
+    padding: 0;
+    text-align: left;
+  }
+  .data-table tr.expand-row td::before { content: none; }
+  .data-table tr.expand-row .expand-inner {
+    display: block !important;
+    padding: 14px !important;
+  }
+  .data-table tr.expand-row .expand-inner .col { margin-bottom: 12px; }
+  .data-table tr.expand-row .expand-inner .col:last-child { margin-bottom: 0; }
+
+  /* Filtri (admin-approvals): wrap fluido */
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+  .filters .fld,
+  .filters select,
+  .filters input { min-width: 0; width: 100%; }
+
+  /* Modali admin: full-width con margine minimo */
+  .modal-overlay .modal { max-width: calc(100vw - 24px); margin: 12px; }
+  .modal.modal--wide { max-width: calc(100vw - 24px); }
+  .modal-header { padding: 14px; }
+  .modal-body { padding: 14px; max-height: 65vh; overflow-y: auto; }
+  .modal-footer { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+  .modal-footer .btn { flex: 1 1 auto; min-width: 120px; }
+
+  /* Modali con form 2-col → 1-col */
+  .modal-body > div[style*="grid-template-columns:1fr 1fr"],
+  .modal-body > div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Fleet-link banner: padding ridotto */
+  .fleet-link { padding: 12px 14px; }
+  .fleet-link .fleet-title { font-size: 13px; }
+  .fleet-link .fleet-sub { font-size: 11px; }
+
+  /* SVG chart dashboard: viewport-friendly height */
+  .admin-content svg { width: 100%; height: auto; }
+
+  /* Crumbs: solo l'ultimo livello, gli altri li nascondiamo per risparmiare spazio */
+  .crumbs { white-space: normal; }
+
+  /* Rotate-hint: pulsante "Usa layout mobile" più visibile */
+  .rotate-hint p { font-size: 14px; }
+  .rotate-hint .btn { font-size: 14px; padding: 12px 18px; }
+}
+
+/* Mobile small: KPI a 1 col */
+@media (max-width: 420px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .esg-kpi-grid { grid-template-columns: 1fr; }
+  .admin-topbar h1 { font-size: 15px; }
+}

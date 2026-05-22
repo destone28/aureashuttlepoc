@@ -196,6 +196,21 @@
           </div>
         </div>
 
+        <!-- Sponsor / sostenitori del servizio -->
+        <div class="sponsor-strip mb-24">
+          <p class="sponsor-eyebrow">Con il sostegno di · partner istituzionali e tecnici</p>
+          <div class="sponsor-row">
+            <a class="sponsor-slot filled" href="https://3dsprinted.it" target="_blank" rel="noopener" aria-label="3DSprinted">
+              <img class="sponsor-logo" src="assets/3dsprinted-logo.png" alt="3DSprinted"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+              <span class="sponsor-wordmark" style="display:none">3DSprinted</span>
+            </a>
+            <div class="sponsor-slot empty">Spazio sponsor</div>
+            <div class="sponsor-slot empty">Spazio sponsor</div>
+          </div>
+          <p class="sponsor-cta">Diventa partner del servizio · <a href="mailto:partnership@aurea.it">partnership@aurea.it</a></p>
+        </div>
+
         <!-- Tabella ultime richieste -->
         <div class="card card--padded-lg">
           <div class="flex justify-between items-center mb-16">
@@ -230,9 +245,9 @@
 
   <div class="rotate-hint">
     <span id="ico-rot"></span>
-    <h2>Console ottimizzata per schermi più grandi</h2>
-    <p>Per usare la dashboard AureaShuttle admin, ruota il dispositivo o accedi da tablet/desktop.</p>
-    <button class="btn btn--primary" onclick="document.querySelector('.rotate-hint').style.display='none'">Continua comunque</button>
+    <h2>Console ottimizzata per desktop</h2>
+    <p>La dashboard AureaShuttle admin offre l'esperienza migliore da tablet o desktop. Puoi comunque continuare con il layout mobile compatto.</p>
+    <button class="btn btn--shuttle" onclick="dismissAdminMobileHint()">Usa layout mobile</button>
   </div>
 
   <script src="data/mock-data.js"></script>
@@ -274,14 +289,14 @@
           </div>`
         : `<button class="btn btn--ghost btn--sm" onclick="location.href='admin-approvals.html#${r.id}'">Dettaglio</button>`;
       return `<tr>
-        <td><strong class="font-mono" style="font-size:12px">${r.id}</strong>${r.linked_care ? `<div class="cell-sub" style="color:var(--care-blue-dark)">↔ AureaCare ${r.linked_care}</div>` : ''}</td>
-        <td><div style="font-weight:700">${r.patient}</div><div class="cell-sub font-mono">${r.patient_id}</div></td>
-        <td><div>${r.from}</div><div class="cell-sub">→ ${r.to}</div></td>
-        <td><div>${r.date}</div><div class="cell-sub">inv. ${r.submitted}</div></td>
-        <td><strong>€${r.cost}</strong><div class="cell-sub">${r.round_trip ? 'A/R' : 'andata'}</div></td>
-        <td>€${r.wallet_after}</td>
-        <td><span class="badge ${cls}"><span class="dot"></span>${label}</span></td>
-        <td>${action}</td>
+        <td data-label="ID"><strong class="font-mono" style="font-size:12px">${r.id}</strong>${r.linked_care ? `<div class="cell-sub" style="color:var(--care-blue-dark)">↔ AureaCare ${r.linked_care}</div>` : ''}</td>
+        <td data-label="Paziente"><div style="font-weight:700">${r.patient}</div><div class="cell-sub font-mono">${r.patient_id}</div></td>
+        <td data-label="Tratta"><div>${r.from}</div><div class="cell-sub">→ ${r.to}</div></td>
+        <td data-label="Quando"><div>${r.date}</div><div class="cell-sub">inv. ${r.submitted}</div></td>
+        <td data-label="Costo"><strong>€${r.cost}</strong><div class="cell-sub">${r.round_trip ? 'A/R' : 'andata'}</div></td>
+        <td data-label="Wallet">€${r.wallet_after}</td>
+        <td data-label="Stato"><span class="badge ${cls}"><span class="dot"></span>${label}</span></td>
+        <td data-label="Azione">${action}</td>
       </tr>`;
     });
     document.getElementById('req-rows').innerHTML = rows.join('');

@@ -236,9 +236,9 @@
 
   <div class="rotate-hint">
     <span id="ico-rot"></span>
-    <h2>Console ottimizzata per schermi più grandi</h2>
-    <p>Per usare la coda approvazioni, ruota il dispositivo o accedi da tablet/desktop.</p>
-    <button class="btn btn--primary" onclick="document.querySelector('.rotate-hint').style.display='none'">Continua comunque</button>
+    <h2>Console ottimizzata per desktop</h2>
+    <p>La coda approvazioni offre l'esperienza migliore da tablet o desktop. Puoi comunque continuare con il layout mobile compatto.</p>
+    <button class="btn btn--shuttle" onclick="dismissAdminMobileHint()">Usa layout mobile</button>
   </div>
 
   <script src="data/mock-data.js"></script>
@@ -313,16 +313,16 @@
 
         return `
           <tr data-id="${r.id}">
-            <td style="width:28px"><button class="icon-btn" style="width:24px;height:24px;background:transparent" onclick="toggle('${r.id}')">${aIcon('chevron-down',{size:14,cls:'text-muted'})}</button></td>
-            <td><strong class="font-mono" style="font-size:12px">${r.id}</strong>${careLink}</td>
-            <td><div style="font-weight:700">${r.patient}</div><div class="cell-sub font-mono">${r.patient_id}</div></td>
-            <td><div>${r.from}</div><div class="cell-sub">→ ${r.to}</div></td>
-            <td><div>${r.date}</div><div class="cell-sub">inv. ${r.submitted}</div></td>
-            <td><strong>€${r.cost}</strong><div class="cell-sub">${r.round_trip ? 'A/R' : 'andata'}</div></td>
-            <td>€${r.wallet_after}</td>
-            <td><span class="badge ${cls}"><span class="dot"></span>${label}</span></td>
-            <td>${driverCell}</td>
-            <td>${actions}</td>
+            <td class="expand-toggle-cell" style="width:28px"><button class="icon-btn" style="width:24px;height:24px;background:transparent" onclick="toggle('${r.id}')">${aIcon('chevron-down',{size:14,cls:'text-muted'})}</button></td>
+            <td data-label="ID"><strong class="font-mono" style="font-size:12px">${r.id}</strong>${careLink}</td>
+            <td data-label="Paziente"><div style="font-weight:700">${r.patient}</div><div class="cell-sub font-mono">${r.patient_id}</div></td>
+            <td data-label="Tratta"><div>${r.from}</div><div class="cell-sub">→ ${r.to}</div></td>
+            <td data-label="Quando"><div>${r.date}</div><div class="cell-sub">inv. ${r.submitted}</div></td>
+            <td data-label="Costo"><strong>€${r.cost}</strong><div class="cell-sub">${r.round_trip ? 'A/R' : 'andata'}</div></td>
+            <td data-label="Wallet">€${r.wallet_after}</td>
+            <td data-label="Stato"><span class="badge ${cls}"><span class="dot"></span>${label}</span></td>
+            <td data-label="Tassista">${driverCell}</td>
+            <td data-label="Azioni">${actions}</td>
           </tr>
           <tr class="expand-row" id="exp-${r.id}" style="display:none">
             <td colspan="10">

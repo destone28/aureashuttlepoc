@@ -225,9 +225,9 @@
 
   <div class="rotate-hint">
     <span id="ico-rot"></span>
-    <h2>Console ottimizzata per schermi più grandi</h2>
-    <p>Per gestire le compagnie taxi, ruota il dispositivo o accedi da tablet/desktop.</p>
-    <button class="btn btn--primary" onclick="document.querySelector('.rotate-hint').style.display='none'">Continua comunque</button>
+    <h2>Console ottimizzata per desktop</h2>
+    <p>La gestione delle compagnie taxi offre l'esperienza migliore da tablet o desktop. Puoi comunque continuare con il layout mobile compatto.</p>
+    <button class="btn btn--shuttle" onclick="dismissAdminMobileHint()">Usa layout mobile</button>
   </div>
 
   <script src="data/mock-data.js"></script>
@@ -269,17 +269,17 @@
           const lowWallet = t.wallet_balance < 1500;
           return `
             <tr>
-              <td><div style="font-weight:700">${t.name}</div><div class="cell-sub">${t.email}</div></td>
-              <td><span class="font-mono" style="font-size:12px">${t.vat}</span></td>
-              <td><div style="font-weight:600">${t.contact}</div><div class="cell-sub">${t.phone}</div></td>
-              <td><strong>${t.drivers_active}</strong><div class="cell-sub">attivi</div></td>
-              <td>
+              <td data-label="Compagnia"><div style="font-weight:700">${t.name}</div><div class="cell-sub">${t.email}</div></td>
+              <td data-label="P.IVA"><span class="font-mono" style="font-size:12px">${t.vat}</span></td>
+              <td data-label="Contatto"><div style="font-weight:600">${t.contact}</div><div class="cell-sub">${t.phone}</div></td>
+              <td data-label="Tassisti"><strong>${t.drivers_active}</strong><div class="cell-sub">attivi</div></td>
+              <td data-label="Wallet">
                 <strong>€${t.wallet_balance.toLocaleString('it-IT')}</strong>
                 ${lowWallet ? '<span class="badge badge--warning" style="margin-left:6px;font-size:10px;padding:2px 6px">basso</span>' : ''}
                 <div class="wallet-bar"><div class="fill" style="width: ${walletPct}%"></div></div>
               </td>
-              <td><strong>${t.rides_month}</strong></td>
-              <td>
+              <td data-label="Corse"><strong>${t.rides_month}</strong></td>
+              <td data-label="Stato">
                 <div class="flex items-center gap-8">
                   <button class="toggle-switch ${isActive ? 'on' : ''}" onclick="toggleStatus('${t.id}', this)"></button>
                   <span style="font-size: 12px; color: ${isActive ? 'var(--shuttle-teal-dark)' : 'var(--medium-gray)'}; font-weight: 600">
@@ -287,7 +287,7 @@
                   </span>
                 </div>
               </td>
-              <td>
+              <td data-label="Azioni">
                 <div class="actions">
                   <button class="btn btn--shuttle btn--sm" onclick="openTopup('${t.id}')">${aIcon('plus',{size:12})} Ricarica</button>
                   <button class="btn btn--ghost btn--sm" onclick="openCompanyDetail('${t.id}')">Dettaglio</button>
