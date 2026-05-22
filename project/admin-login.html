@@ -15,7 +15,16 @@
       grid-template-columns: 1fr 1fr;
       background: #f4f1eb;
     }
-    @media (max-width: 880px) { body { grid-template-columns: 1fr; } .sidebar-illo { display: none; } }
+    @media (max-width: 960px) {
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+      }
+      .sidebar-illo { display: none; }
+      .login-pane { padding: 0; width: 100%; }
+    }
     .sidebar-illo {
       background: linear-gradient(135deg, #1a1d24, #2D2D2D);
       color: #fff;
@@ -130,7 +139,7 @@
       <p class="caption text-center mt-16">
         <a href="index.html" style="color: var(--medium-gray); text-decoration: underline">Sei un paziente?</a>
       </p>
-      <p class="dev-credit">Sviluppato da <a href="https://3dsprinted.it" target="_blank" rel="noopener">3DSprinted</a> · Emilio Destratis</p>
+      <p class="dev-credit">Sviluppato da <a href="https://www.linkedin.com/in/emilio-destratis-3894b2119/" target="_blank" rel="noopener">3DSprinted</a> · Emilio Destratis</p>
     </div>
   </div>
 
