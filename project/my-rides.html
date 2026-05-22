@@ -240,7 +240,7 @@
         </div>` : '';
 
       const careLink = r.linked_care_booking ? `
-        <a href="#" onclick="event.preventDefault();showToast('Apertura simulata: visita AureaCare ${r.linked_care_booking}','info')" class="card card--padded mt-12" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border-color:#B5D4F4;background:var(--care-blue-light)">
+        <a href="https://aureacarepoc.vercel.app" target="_blank" rel="noopener" class="card card--padded mt-12" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border-color:#B5D4F4;background:var(--care-blue-light)">
           <div style="width:36px;height:36px;border-radius:10px;background:var(--care-blue);color:#fff;display:flex;align-items:center;justify-content:center">${aIcon('heart',{size:18})}</div>
           <div style="flex:1">
             <p style="font-weight:700;font-size:13px;color:var(--care-blue-dark)">Vedi visita su AureaCare</p>

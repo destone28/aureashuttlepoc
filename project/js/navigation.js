@@ -180,7 +180,7 @@ function appSwitcherCards() {
         <div class="app-tag">Trasporto sanitario · In uso</div>
       </div>
     </a>
-    <a class="app-card care" href="#" onclick="event.preventDefault(); showToast('Apertura simulata su AureaCare','info');">
+    <a class="app-card care" href="https://aureacarepoc.vercel.app" target="_blank" rel="noopener">
       <div class="app-dot">C</div>
       <div>
         <div class="app-name">AureaCare</div>

@@ -344,7 +344,7 @@
                 <div class="col">
                   <span class="lbl">Collegamenti</span>
                   ${r.linked_care
-                    ? `<p style="font-size: 13px">↔ Visita AureaCare <a href="#" onclick="event.preventDefault();showToast('Apertura simulata visita AureaCare','info')" class="font-mono" style="color:var(--care-blue-dark);font-weight:700">${r.linked_care}</a></p>`
+                    ? `<p style="font-size: 13px">↔ Visita AureaCare <a href="https://aureacarepoc.vercel.app" target="_blank" rel="noopener" class="font-mono" style="color:var(--care-blue-dark);font-weight:700">${r.linked_care}</a></p>`
                     : `<p style="font-size: 13px; color: var(--medium-gray)">Nessun collegamento con AureaCare</p>`}
                   ${taxiCo
                     ? `<p style="font-size: 13px; margin-top: 8px"><strong>Compagnia:</strong> ${taxiCo.name}</p><p class="caption">${taxiCo.contact} · ${taxiCo.phone}</p>`
