@@ -190,7 +190,7 @@
           <div class="sponsor-slot empty">Spazio sponsor</div>
           <div class="sponsor-slot empty">Spazio sponsor</div>
         </div>
-        <p class="sponsor-cta">Vuoi sostenere AureaShuttle? <a href="mailto:partnership@aurea.it">Scrivici</a></p>
+        <p class="sponsor-cta">Vuoi sostenere AureaShuttle? Parliamone</p>
       </div>
 
       <!-- Anagrafica completa -->
@@ -322,7 +322,7 @@
             <div class="field" style="margin-bottom:0"><label class="field-label">Telefono</label><div class="input-container"><input class="input" id="ep-ph" value="${p.phone}"></div></div>
             <div class="field" style="margin-bottom:0"><label class="field-label">Indirizzo</label><div class="input-container"><input class="input" id="ep-ad" value="${p.address}"></div></div>
           </div>
-          <p class="caption mt-12" style="font-size:11px">Codice fiscale e data di nascita non sono modificabili. Per cambiarli, scrivi a <span class="font-mono">supporto@aurea.it</span>.</p>`,
+          <p class="caption mt-12" style="font-size:11px">Codice fiscale e data di nascita non sono modificabili. Per cambiarli, contatta il supporto Aurea.</p>`,
         actions: [
           { label: 'Annulla', kind: 'secondary' },
           { label: 'Salva', kind: 'shuttle', onClick: () => {
@@ -443,12 +443,6 @@
           <div class="settings-list">
             <a class="settings-row" href="#" onclick="event.preventDefault();showToast('Chat con operatore avviata (mockup)','shuttle')">
               ${aIcon('users',{size:18})}<div class="body"><p>Chat con operatore</p><p class="sub">Lun–Ven 9:00–19:00</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
-            </a>
-            <a class="settings-row" href="mailto:supporto@aurea.it">
-              ${aIcon('mail',{size:18})}<div class="body"><p>supporto@aurea.it</p><p class="sub">Risposta entro 24 ore lavorative</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
-            </a>
-            <a class="settings-row" href="tel:+390600000000">
-              ${aIcon('phone',{size:18})}<div class="body"><p>+39 06 0000 0000</p><p class="sub">Numero verde · 8:00–20:00</p></div>${aIcon('chevron-right',{size:16,cls:'text-muted'})}
             </a>
           </div>`,
         actions: [{ label: 'Chiudi', kind: 'secondary' }]

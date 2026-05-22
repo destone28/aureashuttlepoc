@@ -14,14 +14,15 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="logo">A</div>
-      <a class="sb-item active" href="admin-dashboard.html" data-label="Dashboard"><span id="sb1"></span></a>
-      <a class="sb-item" href="admin-approvals.html" data-label="Approvazioni corse"><span id="sb2"></span></a>
-      <a class="sb-item" href="admin-taxi-companies.html" data-label="Compagnie taxi"><span id="sb3"></span></a>
-      <a class="sb-item" href="#" onclick="event.preventDefault();openPatientsModal()" data-label="Pazienti"><span id="sb4"></span></a>
-      <a class="sb-item" href="#" onclick="event.preventDefault();openEsgReport()" data-label="KPI ESG"><span id="sb5"></span></a>
+      <a class="sb-item active" href="admin-dashboard.html" data-label="Dashboard" data-label-mobile="Dashboard"><span id="sb1"></span></a>
+      <a class="sb-item" href="admin-approvals.html" data-label="Approvazioni corse" data-label-mobile="Approva"><span id="sb2"></span></a>
+      <a class="sb-item" href="admin-taxi-companies.html" data-label="Compagnie taxi" data-label-mobile="Compagnie"><span id="sb3"></span></a>
+      <a class="sb-item" href="#" onclick="event.preventDefault();openPatientsModal()" data-label="Pazienti" data-label-mobile="Pazienti"><span id="sb4"></span></a>
+      <a class="sb-item sb-mobile-hide" href="#" onclick="event.preventDefault();openEsgReport()" data-label="KPI ESG"><span id="sb5"></span></a>
       <div class="spacer"></div>
-      <button class="sb-item" data-label="Impostazioni" onclick="openAdminSettings()"><span id="sb6"></span></button>
-      <button class="sb-item" data-label="Esci" onclick="logout()"><span id="sb7"></span></button>
+      <button class="sb-item sb-mobile-hide" data-label="Impostazioni" onclick="openAdminSettings()"><span id="sb6"></span></button>
+      <button class="sb-item sb-mobile-hide" data-label="Esci" onclick="logout()"><span id="sb7"></span></button>
+      <button class="sb-item sb-more" data-label-mobile="Altro" onclick="openMoreAdminMenu()"><span id="sb-more-i"></span></button>
     </aside>
 
     <!-- Main -->
@@ -208,7 +209,7 @@
             <div class="sponsor-slot empty">Spazio sponsor</div>
             <div class="sponsor-slot empty">Spazio sponsor</div>
           </div>
-          <p class="sponsor-cta">Diventa partner del servizio · <a href="mailto:partnership@aurea.it">partnership@aurea.it</a></p>
+          <p class="sponsor-cta">Diventa partner del servizio · Parliamone</p>
         </div>
 
         <!-- Tabella ultime richieste -->
@@ -261,6 +262,7 @@
     document.getElementById('sb5').outerHTML = aIcon('leaf', { size: 20 });
     document.getElementById('sb6').outerHTML = aIcon('settings', { size: 20 });
     document.getElementById('sb7').outerHTML = aIcon('log-out', { size: 20 });
+    document.getElementById('sb-more-i').outerHTML = aIcon('more-horizontal', { size: 20 });
     document.getElementById('ico-bell').outerHTML = aIcon('bell', { size: 18 });
     document.getElementById('ico-rot').outerHTML = aIcon('rotate', { size: 56 });
     document.getElementById('ico-fleet').outerHTML = aIcon('truck', { size: 22 });
