@@ -1,69 +1,111 @@
-# AureaShuttle POC
+# AureaShuttle · POC
 
-> Handoff bundle from Claude Design (claude.ai/design): a static, navigable mockup of **AureaShuttle**, the third product in the Aurea suite (after AureaVia, alongside AureaCare).
-> Domain: **medical transport assistance** — taxi rides to healthcare facilities, admin approval, prepaid ride-package wallet, ESG/SROI tracking.
+**Trasporto sanitario assistito a Roma** — mockup navigabile della terza app della suite Aurea, pensata per pazienti con piani di cura ricorrenti e per gli amministratori che gestiscono la rete delle compagnie taxi convenzionate.
 
-🌐 **Live preview**: `project/canvas.html` (review hub with all 13 screens + Tweaks)
-🚀 **Webapp entry points**: `project/index.html` (patient) · `project/admin-login.html` (admin)
+🌐 **Live demo**: <https://aureashuttlepoc.vercel.app>
+📐 **Hub di review** (tutte le 13 schermate): <https://aureashuttlepoc.vercel.app/canvas.html>
 
 ---
 
-## Quick start
+## Cosa fa
 
-No build, no install. Open the HTML files directly in any modern browser, or serve the `project/` folder via any static host (Vercel, Netlify, GitHub Pages, `python -m http.server`, etc).
+AureaShuttle copre **3 attori**:
 
-```bash
-# Optional local server
-cd project && python3 -m http.server 8080
-# then open http://localhost:8080/canvas.html  (review)
-#      or  http://localhost:8080/index.html    (patient app)
-```
+- **Paziente** · prenota una corsa A/R verso una struttura sanitaria di Roma, paga tramite pacchetti corse prepagati (5 / 10 / 20), traccia l'impatto ESG personale (giornate caregiver risparmiate, CO₂ evitata, SROI).
+- **Admin** · approva le richieste, gestisce le compagnie taxi convenzionate (wallet operativo, KPI mensili), monitora l'impatto ESG aggregato della rete.
+- **Tassista** · NON è incluso in questo repo — il driver layer è coperto da **AureaVia**, linkato esternamente dalla console admin.
 
-Any email/password is accepted — auth is fully simulated via `localStorage`.
+Il servizio è **handoff-ready con AureaCare**: una visita prenotata su AureaCare può precompilare automaticamente la richiesta corsa via URL params (`?from=aureacare&booking_id=…`).
 
-## What's inside
+## Pricing model
 
-```
-aureashuttlepoc/
-├── README.md              ← this file
-├── CLAUDE.md              ← spec for Claude Code reimplementation
-└── project/
-    ├── canvas.html              review hub (13 screens + Tweaks panel)
-    ├── index.html               patient login
-    ├── onboarding.html          4-step wizard (anagrafica + caregiver + auto + GDPR)
-    ├── home.html                patient dashboard · wallet + next ride + ESG
-    ├── book-ride.html           new ride form (with AureaCare handoff)
-    ├── ride-summary.html        confirm screen
-    ├── wallet.html              wallet + package store + payment methods
-    ├── my-rides.html            ride list · filters + lifecycle timeline modal
-    ├── caregiver.html           caregiver + car (for ESG calculation)
-    ├── profile.html             patient profile + detailed ESG dashboard + SROI
-    ├── admin-login.html         admin entry
-    ├── admin-dashboard.html     KPI + chart + ESG aggregate + last requests + AureaVia fleet card
-    ├── admin-approvals.html     approval queue with forward-to-AureaVia modal
-    ├── admin-taxi-companies.html  taxi companies CRUD + wallet recharge
-    ├── js/styles.css            global stylesheet
-    ├── js/navigation.js         auth, toast, app switcher, wallet ring, handoff parser
-    ├── js/icons.js              aIcon(name, opts) — Feather + Tabler outline subset
-    └── data/mock-data.js        window.MOCK · all hard-coded Roma data
-```
+Dal documento operativo, fisso e non negoziabile:
 
-## Architecture in two lines
+| Voce | Costo |
+|---|---|
+| Corsa netta | €80 |
+| Diritti fissi andata | €11 |
+| Diritti fissi ritorno | €11 |
+| **Totale A/R** | **€102** |
+| Solo andata | €91 |
 
-- **Patient app** (9 screens): mobile-first 360–440px. Wallet sempre visibile, 4-voci bottom nav, ESG card come elemento distintivo.
-- **Admin console** (4 screens): desktop 1280–1920px. Sidebar 72px, ESG aggregato, modale "approva + inoltra a AureaVia".
-- **Driver layer**: NON in questo repo. Coperto da [AureaVia](https://destone28.github.io/aureaviapoc/) (linkato esternamente dalla console admin).
-
-Cross-app SSO: shared `localStorage` key `aurea_auth_user` (same convention used by AureaVia + AureaCare). Per il dettaglio architetturale leggere `CLAUDE.md`.
+Pacchetti: **5×€102 = €510** · **10×€102 = €1.020** (più scelto) · **20×€102 = €2.040** (best value).
 
 ## Suite Aurea
 
-| App | Repo | Status |
+| App | Dominio | Repo |
 |---|---|---|
-| **AureaVia** (NCC/taxi premium + driver layer) | [destone28/aureaviapoc](https://github.com/destone28/aureaviapoc) | Live |
-| **AureaCare** (accesso alle cure) | [destone28/aureacarepoc](https://github.com/destone28/aureacarepoc) | Live |
-| **AureaShuttle** (trasporto sanitario) | this repo | POC v0.1 |
+| **AureaVia** (NCC + taxi premium, driver layer) | <https://destone28.github.io/aureaviapoc/> | [aureaviapoc](https://github.com/destone28/aureaviapoc) |
+| **AureaCare** (accesso alle cure) | <https://aureacarepoc.vercel.app> | [aureacarepoc](https://github.com/destone28/aureacarepoc) |
+| **AureaShuttle** (trasporto sanitario) | <https://aureashuttlepoc.vercel.app> | this repo |
 
----
+SSO simulato cross-app via chiave `aurea_auth_user` in `localStorage` (convenzione condivisa con AureaVia + AureaCare).
 
-🧡 Suite marker arancione `#FF8C00` · 🟢 AureaShuttle teal `#0EA5A4` · 🔵 AureaCare blue `#3B82F6`
+## Stack
+
+- HTML5 + CSS3 + Vanilla JS ES6+ — **zero framework**, zero build step.
+- Open Sans (Google Fonts CDN), Leaflet + OpenStreetMap per le mappe.
+- Persistenza: `localStorage` (auth, wallet, preferenze tweaks, prenotazioni pendenti).
+- Mock data hard-coded in [project/data/mock-data.js](project/data/mock-data.js) come `window.MOCK` — 18 strutture sanitarie Roma-centriche, 12 compagnie taxi, 12 corse paziente, 15 richieste admin, KPI ESG aggregati.
+
+## Run in locale
+
+Nessuna installazione, nessuna build. Apri direttamente i file in browser oppure servi la cartella `project/`:
+
+```bash
+cd project && python3 -m http.server 8080
+# poi apri:
+# http://localhost:8080/canvas.html       hub review 13 schermate + tweaks panel
+# http://localhost:8080/index.html        flusso paziente
+# http://localhost:8080/admin-login.html  console admin
+```
+
+Login simulato: **qualsiasi email/password va bene**.
+
+## Struttura
+
+```
+aureashuttlepoc/
+├── README.md
+├── CLAUDE.md                spec per agenti AI che riprendono il repo
+└── project/
+    ├── canvas.html              hub review (13 schermate + 5 tweaks live)
+    ├── index.html               login paziente
+    ├── onboarding.html          wizard 4 step
+    ├── home.html                dashboard paziente
+    ├── book-ride.html           nuova corsa (con mappa OSM + handoff AureaCare)
+    ├── ride-summary.html        riepilogo + invio in approvazione
+    ├── wallet.html              wallet + acquisto pacchetti
+    ├── my-rides.html            lista corse + modale dettaglio con mappa OSM
+    ├── caregiver.html           caregiver + auto (per calcolo ESG)
+    ├── profile.html             profilo + dashboard ESG personale + SROI
+    ├── admin-login.html         entry admin
+    ├── admin-dashboard.html     KPI + chart + ESG aggregato + AureaVia fleet card
+    ├── admin-approvals.html     coda approvazioni + modale "inoltra a AureaVia"
+    ├── admin-taxi-companies.html  compagnie taxi + wallet operativo
+    ├── assets/                  loghi sponsor
+    ├── data/mock-data.js        window.MOCK
+    └── js/
+        ├── styles.css           design system completo
+        ├── navigation.js        auth, toast, modal, app switcher, wallet ring, Leaflet helper
+        └── icons.js             aIcon(name, opts) — Feather + Tabler subset
+```
+
+## Design system
+
+- **Suite marker**: arancione `#FF8C00` (logo, focus ring) — invariante in tutta la suite Aurea.
+- **AureaShuttle accent**: teal `#0EA5A4` (CTA, wallet ring, ESG card, badge "Inviata taxi").
+- **AureaCare accent**: blue `#3B82F6` — appare **solo** sul banner handoff "in arrivo da AureaCare" in `book-ride.html`.
+- 8 stati corsa: `requested · pending · approved · dispatched · accepted · in_progress · completed · cancelled` con palette dedicata.
+- Icone solo SVG via `aIcon()` — nessuna emoji.
+
+## Cosa NON è incluso
+
+- Lato tassista — coperto da [AureaVia](https://destone28.github.io/aureaviapoc/).
+- Backend reale, pagamenti reali (Stripe / PayPal / Google Pay sono solo card visuali).
+- Geocoding reale — il "geocoder" in `navigation.js` riconosce le 18 strutture Roma + 23 landmark/strade della città; per indirizzi sconosciuti centra su Roma.
+- Tracking real-time delle corse in corso — il driver e la card "In corso" sono mockati.
+
+## Crediti
+
+Sviluppato da [Emilio Destratis](https://www.linkedin.com/in/emilio-destratis-3894b2119/) · 3DSprinted.

@@ -11,136 +11,120 @@
   <style>
     body {
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      background: #f4f1eb;
-    }
-    @media (max-width: 960px) {
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px 16px;
-      }
-      .sidebar-illo { display: none; }
-      .login-pane { padding: 0; width: 100%; }
-    }
-    .sidebar-illo {
-      background: linear-gradient(135deg, #1a1d24, #2D2D2D);
-      color: #fff;
-      padding: 48px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-    .sidebar-illo::before {
-      content: '';
-      position: absolute;
-      inset: 0;
+      display: flex; align-items: center; justify-content: center;
       background:
-        radial-gradient(circle at 80% 20%, rgba(14,165,164,.25), transparent 50%),
-        radial-gradient(circle at 20% 80%, rgba(255,140,0,.15), transparent 50%);
-    }
-    .sidebar-illo > * { position: relative; }
-    .sidebar-illo .b-logo {
-      width: 56px; height: 56px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+        radial-gradient(circle at 15% 15%, rgba(255,140,0,.08), transparent 50%),
+        radial-gradient(circle at 85% 85%, rgba(14,165,164,.12), transparent 50%),
+        linear-gradient(180deg, #14171D, #1a1d24);
+      padding: 24px;
       color: #fff;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:700; font-size: 26px;
-      position: relative;
     }
-    .sidebar-illo .b-logo::after {
+    .admin-card {
+      background: #fff;
+      color: var(--ink);
+      width: 100%;
+      max-width: 460px;
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.4);
+    }
+    .admin-brand {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .admin-brand .logo {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 700; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .admin-brand .logo::after {
       content: 'S';
       position: absolute;
       bottom: -4px; right: -4px;
-      width: 20px; height: 20px;
+      width: 18px; height: 18px;
       background: var(--shuttle-teal);
-      border-radius: 6px;
-      display:flex; align-items:center; justify-content:center;
-      font-size: 11px;
-      border: 2px solid #1a1d24;
-    }
-    .sidebar-illo h1 { font-size: 36px; font-weight: 700; line-height: 1.15; }
-    .sidebar-illo p { color: #B6BBC4; font-size: 15px; line-height: 1.55; max-width: 380px; }
-    .sidebar-illo .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.1); }
-    .sidebar-illo .stat-row .stat-num { font-size: 22px; font-weight: 700; color: var(--shuttle-teal); }
-    .sidebar-illo .stat-row .stat-lbl { font-size: 11px; color: #B6BBC4; }
-    .sidebar-illo .footer { margin-top: auto; font-size: 11px; color: #6E7480; }
-
-    .login-pane {
+      border-radius: 5px;
       display: flex; align-items: center; justify-content: center;
-      padding: 40px 24px;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255,140,0,.08), transparent 55%),
-        radial-gradient(circle at 80% 90%, rgba(14,165,164,.10), transparent 55%),
-        linear-gradient(180deg, #FEFCF8, #F4F0E9);
+      font-size: 10px; font-weight: 700;
+      border: 2px solid #fff;
     }
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: #fff;
-      border-radius: 20px;
-      padding: 36px 32px;
-      box-shadow: 0 20px 60px rgba(45,45,45,.12);
+    .admin-brand .pill {
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      background: var(--shuttle-teal-light); color: var(--shuttle-teal-dark);
+      border-radius: 4px; letter-spacing: 0.05em;
     }
-    .pill-admin {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 4px 10px;
-      background: var(--shuttle-teal-light);
-      color: var(--shuttle-teal-dark);
+    .admin-card h1 { font-size: 22px; font-weight: 700; }
+    .sso-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .sso-row label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+    .sso-row label input { accent-color: var(--shuttle-teal); }
+    .sso-row a { color: var(--shuttle-teal-dark); font-weight: 700; text-decoration: none; }
+    .admin-foot {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-soft);
       font-size: 11px;
-      font-weight: 700;
-      border-radius: 999px;
-      letter-spacing: .05em;
+      text-align: center;
+      color: var(--medium-gray);
+    }
+    .admin-foot a {
+      color: var(--shuttle-teal-dark);
+      font-weight: 600;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <aside class="sidebar-illo">
-    <div class="b-logo">A</div>
-    <h1>AureaShuttle<br>Admin console</h1>
-    <p>Approva richieste, gestisci compagnie taxi convenzionate, monitora l'impatto ESG aggregato della rete trasporto sanitario su Roma.</p>
-    <div class="stat-row">
-      <div><p class="stat-num">247</p><p class="stat-lbl">CORSE / MESE</p></div>
-      <div><p class="stat-num">12</p><p class="stat-lbl">COMPAGNIE</p></div>
-      <div><p class="stat-num">3.0×</p><p class="stat-lbl">SROI</p></div>
+  <div class="admin-card slide-up">
+    <div class="admin-brand">
+      <div class="logo">A</div>
+      <div>
+        <p style="font-size:18px;font-weight:700;line-height:1.1">AureaShuttle</p>
+        <p class="caption" style="margin-top:2px">Console amministrativa <span class="pill">ADMIN</span></p>
+      </div>
     </div>
-    <div class="footer">v0.1 POC · Roma · suite Aurea</div>
-  </aside>
 
-  <div class="login-pane">
-    <div class="login-card slide-up">
-      <span class="pill-admin"><span id="ico-admin"></span>AMMINISTRATORE</span>
-      <h2 class="h2 mt-12">Accesso console admin</h2>
-      <p class="caption mb-24">Solo personale autorizzato Aurea. Le credenziali non sono condivise con il flusso paziente.</p>
+    <h1>Accedi alla console</h1>
+    <p class="caption mb-24" style="margin-top:4px">Approvazioni corse, compagnie taxi convenzionate, KPI ESG aggregato.</p>
 
-      <form id="loginForm">
-        <div class="field">
-          <label class="field-label" for="email">Email aziendale</label>
-          <div class="input-container"><span id="ico-mail"></span><input type="email" id="email" class="input" placeholder="nome.cognome@aurea.it" value="admin@aureashuttle.it" required></div>
+    <form id="loginForm">
+      <div class="field">
+        <label class="field-label" for="email">Email aziendale</label>
+        <div class="input-container">
+          <span id="ico-mail"></span>
+          <input type="email" id="email" class="input" placeholder="nome.cognome@aurea.it" value="admin@aureashuttle.it" required>
         </div>
-        <div class="field">
-          <label class="field-label" for="password">Password</label>
-          <div class="input-container"><span id="ico-lock"></span><input type="password" id="password" class="input" placeholder="••••••••" value="demo" required></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <div class="input-container">
+          <span id="ico-lock"></span>
+          <input type="password" id="password" class="input" placeholder="••••••••" value="demo" required>
         </div>
-        <div class="flex justify-between items-center mb-16">
-          <label style="font-size: 13px; display: flex; gap: 6px; align-items: center; cursor: pointer">
-            <input type="checkbox" checked> Ricordami su questo computer
-          </label>
-          <a href="#" onclick="event.preventDefault();openSSO()" style="font-size: 13px; color: var(--shuttle-teal-dark); font-weight: 700">SSO Aurea</a>
-        </div>
-        <button type="submit" class="btn btn--shuttle btn--block btn--lg">Accedi alla console</button>
-      </form>
+      </div>
+      <div class="sso-row">
+        <label>
+          <input type="checkbox" checked> Ricordami su questo computer
+        </label>
+        <a href="#" onclick="event.preventDefault();openSSO()">SSO Aurea</a>
+      </div>
+      <button type="submit" class="btn btn--shuttle btn--block btn--lg">Accedi alla dashboard</button>
+    </form>
 
-      <p class="caption text-center mt-16">
-        <a href="index.html" style="color: var(--medium-gray); text-decoration: underline">Sei un paziente?</a>
-      </p>
-      <p class="dev-credit">Sviluppato da <a href="https://www.linkedin.com/in/emilio-destratis-3894b2119/" target="_blank" rel="noopener">3DSprinted</a> · Emilio Destratis</p>
-    </div>
+    <p class="caption text-center mt-20">
+      <a href="index.html" style="color:var(--medium-gray);text-decoration:underline">← Torna al login paziente</a>
+    </p>
+    <p class="admin-foot">
+      Sviluppato da <a href="https://www.linkedin.com/in/emilio-destratis-3894b2119/" target="_blank" rel="noopener">Emilio Destratis</a> · 3DSprinted
+    </p>
   </div>
 
   <div id="toast-container"></div>
@@ -148,7 +132,6 @@
   <script src="js/icons.js"></script>
   <script src="js/navigation.js"></script>
   <script>
-    document.getElementById('ico-admin').outerHTML = aIcon('shield', { size: 12 });
     document.getElementById('ico-mail').outerHTML = aIcon('mail', { size: 18 });
     document.getElementById('ico-lock').outerHTML = aIcon('lock', { size: 18 });
 
