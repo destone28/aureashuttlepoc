@@ -1107,25 +1107,6 @@ textarea.input { resize: vertical; min-height: 80px; }
 .sheet h3 { font-size: 16px; margin-bottom: 10px; }
 @keyframes slideUpSheet { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
 
-/* Mobile hint — non bloccante: si apre solo se body.admin-page ha la classe
-   .show-rotate-hint, gestita lato JS al primo accesso mobile della sessione. */
-.rotate-hint {
-  display: none;
-  position: fixed; inset: 0;
-  background: #1a1d24;
-  color: #fff;
-  z-index: 99999;
-  flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 40px;
-  gap: 16px;
-}
-.rotate-hint h2 { font-size:22px; font-weight:700; }
-.rotate-hint p  { color:#B6BBC4; max-width: 320px; line-height: 1.5; }
-.rotate-hint .ico { width:64px; height:64px; color: var(--primary-orange); }
-body.admin-page.show-rotate-hint .rotate-hint { display: flex; }
-
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
@@ -1255,15 +1236,49 @@ body.admin-page.show-rotate-hint .rotate-hint { display: flex; }
   .admin-topbar h1 { font-size: 17px; }
 }
 
-/* Mobile: sidebar → bottom-bar, topbar compatta, layout 1-col */
+/* Mobile: sidebar → bottom-bar, topbar compatta, layout 1-col, contenuto fluido. */
 @media (max-width: 760px) {
-  /* La rotate-hint resta come fallback (vedi blocco rotate-hint),
-     ma con CTA "Usa layout mobile" l'utente può chiuderla e usare l'app. */
+  /* --- Mobile safety net ---
+     Garantisce che la console admin entri sempre nel viewport, senza scroll
+     orizzontale né elementi che sforano oltre la larghezza del device.
+     Vale solo per body.admin-page per non toccare la patient app. */
+  body.admin-page {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  body.admin-page * {
+    /* Nessun elemento può crescere oltre il proprio container */
+    max-width: 100%;
+    min-width: 0;
+  }
+  /* I figli inline-block / flex possono comunque rompere parole lunghe */
+  body.admin-page p,
+  body.admin-page span,
+  body.admin-page div,
+  body.admin-page td,
+  body.admin-page strong { word-break: break-word; overflow-wrap: anywhere; }
+  /* Eccezioni: i contenitori che vogliono restare alla loro larghezza piena */
+  body.admin-page .admin-sidebar,
+  body.admin-page .admin-sidebar * { max-width: none; }
+  body.admin-page .modal-overlay,
+  body.admin-page .toast { max-width: none; }
+  /* SVG e immagini: sempre fluidi */
+  body.admin-page svg,
+  body.admin-page img { max-width: 100%; height: auto; }
+  /* Form inputs: niente min-width nativo che sfora (es. type=number/date) */
+  body.admin-page input,
+  body.admin-page select,
+  body.admin-page textarea { max-width: 100%; box-sizing: border-box; }
+  /* Card e sezioni: niente shadow che sporge */
+  body.admin-page .card { box-sizing: border-box; }
 
   .admin-shell {
     grid-template-columns: 1fr;
     padding-bottom: 64px; /* spazio per la bottom-bar admin */
+    max-width: 100vw;
+    overflow-x: hidden;
   }
+  .admin-main, .admin-content { max-width: 100vw; min-width: 0; }
 
   /* Sidebar → bottom-bar orizzontale a 5 slot (4 primari + "Altro").
      Le voci secondarie (KPI ESG, Impostazioni, Esci) sono nascoste su mobile
@@ -1487,10 +1502,20 @@ body.admin-page.show-rotate-hint .rotate-hint { display: flex; }
   .modal-footer { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
   .modal-footer .btn { flex: 1 1 auto; min-width: 120px; }
 
-  /* Modali con form 2-col → 1-col */
+  /* Modali con form 2-col / 3-col → 1-col su mobile */
   .modal-body > div[style*="grid-template-columns:1fr 1fr"],
-  .modal-body > div[style*="grid-template-columns: 1fr 1fr"] {
+  .modal-body > div[style*="grid-template-columns: 1fr 1fr"],
+  .modal-body > div[style*="grid-template-columns:repeat(3"],
+  .modal-body > div[style*="grid-template-columns: repeat(3"] {
     grid-template-columns: 1fr !important;
+  }
+  /* Modali wide: max-width effettiva su mobile */
+  .modal.modal--wide { width: calc(100vw - 24px); }
+  /* Tabella dentro modal: scroll orizzontale dolce invece di sforare */
+  .modal-body table.data-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Fleet-link banner: padding ridotto */
@@ -1504,9 +1529,6 @@ body.admin-page.show-rotate-hint .rotate-hint { display: flex; }
   /* Crumbs: solo l'ultimo livello, gli altri li nascondiamo per risparmiare spazio */
   .crumbs { white-space: normal; }
 
-  /* Rotate-hint: pulsante "Usa layout mobile" più visibile */
-  .rotate-hint p { font-size: 14px; }
-  .rotate-hint .btn { font-size: 14px; padding: 12px 18px; }
 }
 
 /* Mobile small: KPI a 1 col */

@@ -643,26 +643,6 @@ function readCareHandoff() {
   };
 }
 
-// ---------- Mobile hint per la console admin ----------
-// Mostra il rotate-hint la prima volta in sessione su mobile (≤760px portrait).
-// Il pulsante della hint chiama dismissAdminMobileHint() che la chiude e segna la sessione.
-// Dopo la chiusura mostra un toast riepilogativo. Su tablet/desktop nessuna interazione.
-function dismissAdminMobileHint() {
-  document.body.classList.remove('show-rotate-hint');
-  try { sessionStorage.setItem('aureashuttle_admin_mobile_hint_seen', '1'); } catch (e) {}
-  showToast('Console ottimizzata per desktop · layout mobile attivo', 'info');
-}
-
-function maybeShowAdminMobileHint() {
-  if (!document.body.classList.contains('admin-page')) return;
-  const isMobile = window.matchMedia('(max-width: 760px) and (orientation: portrait)').matches;
-  if (!isMobile) return;
-  let seen = null;
-  try { seen = sessionStorage.getItem('aureashuttle_admin_mobile_hint_seen'); } catch (e) {}
-  if (seen) return;
-  document.body.classList.add('show-rotate-hint');
-}
-
 // ---------- Init globale ----------
 document.addEventListener('DOMContentLoaded', () => {
   // app switcher trigger se presente
@@ -673,9 +653,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.bottom-nav .nav-item').forEach(a => {
     if (a.getAttribute('href') === path) a.classList.add('active');
   });
-
-  // Mobile hint sulla console admin (non bloccante)
-  maybeShowAdminMobileHint();
 
   // ESC chiude overlay
   document.addEventListener('keydown', (e) => {
